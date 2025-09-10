@@ -50,7 +50,7 @@
 
     // 管理者が設定するシンボル画像
     const symbols = [
-      "images/slot1.png",
+  "images/slot1.png",
   "images/slot2.png",
   "images/slot3.png",
   "images/slot4.png",
