@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>スロットマシン</title>
+  <style>
+    body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .wrap{max-width:960px;width:100%;padding:20px}
+    .slot-area{display:flex;gap:16px;justify-content:center;margin:20px 0}
+    .reel{width:120px;height:150px;overflow:hidden;border:2px solid #444;border-radius:8px;background:#111;}
+    .reel-track{transition:transform 1s ease;}
+    .symbol{height:150px;display:flex;align-items:center;justify-content:center}
+    .symbol img{max-width:100%;max-height:100%}
+    .panel{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+    button{padding:10px 16px;border:none;border-radius:6px;background:#f59e0b;color:#000;font-weight:bold;cursor:pointer}
+    .bet-panel{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}
+    .bet-panel input{width:80px;padding:6px;border-radius:4px;border:1px solid #555;text-align:right}
+    #result img{margin:0 2px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>スロットマシン</h1>
+
+    <div class="slot-area">
+      <div class="reel"><div class="reel-track" id="track-0"></div></div>
+      <div class="reel"><div class="reel-track" id="track-1"></div></div>
+      <div class="reel"><div class="reel-track" id="track-2"></div></div>
+    </div>
+
+    <div class="bet-panel">
+      <label>所持コイン: <span id="coins">100</span></label>
+      <label>ベット額: <input type="number" id="bet" value="10" min="1"></label>
+    </div>
+
+    <div class="panel">
+      <button id="spin">SPIN</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const resultEl = document.getElementById('result')
+    const coinsEl = document.getElementById('coins')
+    const betInput = document.getElementById('bet')
+
+    let coins = 100
+
+    // 管理者が設定するシンボル画像
+    const symbols = [
+      'https://via.placeholder.com/150/ff0000/ffffff?text=A',
+      'https://via.placeholder.com/150/00ff00/ffffff?text=B',
+      'https://via.placeholder.com/150/0000ff/ffffff?text=C',
+      'https://via.placeholder.com/150/f59e0b/000000?text=★'
+    ]
+
+    function buildTracks(){
+      for(let r=0;r<3;r++){
+        const track = document.getElementById('track-'+r)
+        track.innerHTML = ''
+        symbols.forEach(src=>{
+          const s = document.createElement('div')
+          s.className='symbol'
+          s.innerHTML = `<img src="${src}">`
+          track.appendChild(s)
+        })
+      }
+    }
+
+    document.getElementById('spin').addEventListener('click', ()=>{
+      const bet = parseInt(betInput.value)
+      if(isNaN(bet) || bet<=0){alert('ベット額を正しく入力してください');return}
+      if(bet>coins){alert('コインが足りません');return}
+
+      coins -= bet
+      coinsEl.textContent = coins
+
+      const results = []
+      for(let r=0;r<3;r++){
+        const track = document.getElementById('track-'+r)
+        const index = Math.floor(Math.random()*symbols.length)
+        results.push(index)
+        const offset = -index*150
+        track.style.transform = `translateY(${offset}px)`
+      }
+
+      showResult(results, bet)
+    })
+
+    function showResult(results, bet){
+      resultEl.innerHTML = '結果: ' + results.map(i=>`<img src="${symbols[i]}" style="width:50px;height:50px">`).join('')
+      if(results[0]===results[1] && results[1]===results[2]){
+        const win = bet*5
+        coins += win
+        coinsEl.textContent = coins
+        resultEl.innerHTML += `<div style='color:lime'>当たり！ +${win}コイン</div>`
+      } else {
+        resultEl.innerHTML += `<div style='color:#aaa'>はずれ</div>`
+      }
+    }
+
+    // 初期表示
+    buildTracks()
+  </script>
+</body>
+</html>
