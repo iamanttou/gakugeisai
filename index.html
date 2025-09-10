@@ -3,111 +3,238 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>スロットマシン</title>
+  <title>3x3 スロットマシン</title>
   <style>
-    body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .wrap{max-width:960px;width:100%;padding:20px}
-    .slot-area{display:flex;gap:16px;justify-content:center;margin:20px 0}
-    .reel{width:120px;height:150px;overflow:hidden;border:2px solid #444;border-radius:8px;background:#111;}
-    .reel-track{transition:transform 1s ease;}
-    .symbol{height:150px;display:flex;align-items:center;justify-content:center}
-    .symbol img{max-width:100%;max-height:100%}
-    .panel{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-    button{padding:10px 16px;border:none;border-radius:6px;background:#f59e0b;color:#000;font-weight:bold;cursor:pointer}
-    .bet-panel{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}
-    .bet-panel input{width:80px;padding:6px;border-radius:4px;border:1px solid #555;text-align:right}
-    #result img{margin:0 2px}
+    body{margin:0;font-family:sans-serif;background:#071428;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .wrap{width:100%;max-width:760px;padding:20px}
+    h1{margin:0 0 10px}
+    .status{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    .grid{display:grid;grid-template-columns:repeat(3,120px);grid-gap:8px;justify-content:center}
+    .cell{width:120px;height:120px;background:#0c1a2a;border-radius:8px;display:flex;align-items:center;justify-content:center;border:3px solid transparent;overflow:hidden}
+    .cell img{width:100%;height:100%;object-fit:cover}
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    button{padding:10px 14px;border:none;border-radius:6px;background:#f59e0b;color:#000;font-weight:700;cursor:pointer}
+    input[type=number]{width:100px;padding:8px;border-radius:6px;border:1px solid #334}
+    #result{margin-top:12px;color:#dce}
+    .highlight{box-shadow:0 0 0 4px rgba(16,185,129,0.12);border-color:#10b981}
+    .payline-label{font-size:13px;color:#9fb}
+    @media(max-width:520px){.grid{grid-template-columns:repeat(3,28vw)}.cell{height:28vw}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>スロットマシン</h1>
+    <h1>3×3 スロットマシン（縦・横・斜め判定）</h1>
 
-    <div class="slot-area">
-      <div class="reel"><div class="reel-track" id="track-0"></div></div>
-      <div class="reel"><div class="reel-track" id="track-1"></div></div>
-      <div class="reel"><div class="reel-track" id="track-2"></div></div>
+    <div class="status">
+      <div>所持コイン: <strong id="coins">100</strong></div>
+      <div class="payline-label">ベット（1スピン）: <input id="bet" type="number" value="10" min="1"></div>
+      <div class="payline-label">勝ち判定: 横3 / 縦3 / 斜め3 が揃えば当たり</div>
     </div>
 
-    <div class="bet-panel">
-      <label>所持コイン: <span id="coins">100</span></label>
-      <label>ベット額: <input type="number" id="bet" value="10" min="1"></label>
+    <div class="grid" id="grid">
+      <!-- 3x3 のセルを自動生成 -->
     </div>
 
-    <div class="panel">
+    <div class="controls">
       <button id="spin">SPIN</button>
+      <button id="randomizeSymbols">シンボル並び（管理者が設定）をランダムに</button>
+      <button id="showSymbols">現在のシンボル一覧を見る</button>
     </div>
 
     <div id="result"></div>
+
+    <hr style="margin:16px 0;border-color:#123">
+    <div>
+      <h3 style="margin:6px 0">管理者用 — シンボル画像をここで設定</h3>
+      <p style="margin:4px 0;color:#9fb">（画像はリポジトリ内 images/ に置き、ここにパスを並べてください）</p>
+      <textarea id="symbolsInput" style="width:100%;height:80px;border-radius:6px;background:#041220;color:#dfe;border:1px solid #234;padding:8px">images/slot1.png
+images/slot1.png
+images/slot2.png
+images/slot3.png
+images/slot4.png
+images/slot5.png
+images/slot6.png
+images/slot7.png
+images/slot8.png
+images/slot9.png</textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button id="applySymbols">適用して反映</button>
+        <button id="resetDefault">デフォルトに戻す</button>
+      </div>
+      <p style="color:#9fb;font-size:13px;margin-top:6px">※ 管理者が画像URLを直接編集して反映できます（Google Drive の直リンク も可）。</p>
+    </div>
   </div>
 
   <script>
-    const resultEl = document.getElementById('result')
+    // 所持コインとベット
+    let coins = 100
     const coinsEl = document.getElementById('coins')
     const betInput = document.getElementById('bet')
+    const resultEl = document.getElementById('result')
 
-    let coins = 100
+    // 初期シンボル（管理者が編集可能）
+    let symbols = [
+      'https://via.placeholder.com/150/ff0000/ffffff?text=A',
+      'https://via.placeholder.com/150/00ff00/ffffff?text=B',
+      'https://via.placeholder.com/150/0000ff/ffffff?text=C',
+      'https://via.placeholder.com/150/f59e0b/000000?text=★'
+    ]
 
-    // 管理者が設定するシンボル画像
-    const symbols = [
-  "images/slot1.png",
-  "images/slot2.png",
-  "images/slot3.png",
-  "images/slot4.png",
-  "images/slot5.png",
-  "images/slot6.png",
-  "images/slot7.png",
-  "images/slot8.png",
-  "images/slot9.png",
-]
-
-    function buildTracks(){
-      for(let r=0;r<3;r++){
-        const track = document.getElementById('track-'+r)
-        track.innerHTML = ''
-        symbols.forEach(src=>{
-          const s = document.createElement('div')
-          s.className='symbol'
-          s.innerHTML = `<img src="${src}">`
-          track.appendChild(s)
-        })
+    const gridEl = document.getElementById('grid')
+    // 3x3セルを作る
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const cell = document.createElement('div')
+        cell.className='cell'
+        cell.id = `cell-${r}-${c}`
+        cell.innerHTML = `<img src="${symbols[(r*3+c)%symbols.length]}" alt="symbol">`
+        gridEl.appendChild(cell)
       }
     }
 
+    function updateGridWithIndices(indices){
+      // indices: 3x3 array-like (rows of indices)
+      for(let r=0;r<3;r++){
+        for(let c=0;c<3;c++){
+          const idx = indices[r][c]
+          const img = gridEl.querySelector(`#cell-${r}-${c} img`)
+          img.src = symbols[idx]
+          img.alt = `sym-${idx}`
+          // remove any highlight
+          gridEl.querySelector(`#cell-${r}-${c}`).classList.remove('highlight')
+        }
+      }
+    }
+
+    function randomIndices(){
+      const n = symbols.length
+      const out = []
+      for(let r=0;r<3;r++){
+        const row = []
+        for(let c=0;c<3;c++){
+          row.push(Math.floor(Math.random()*n))
+        }
+        out.push(row)
+      }
+      return out
+    }
+
+    function checkPaylines(indices){
+      // returns array of winning paylines with {name, cells:[{r,c}], symbolIndex}
+      const wins = []
+      // rows
+      for(let r=0;r<3;r++){
+        const a = indices[r][0], b = indices[r][1], c = indices[r][2]
+        if(a===b && b===c) wins.push({name:`横 ${r+1}`, cells:[{r,c:0},{r,c:1},{r,c:2}], symbolIndex:a})
+      }
+      // cols
+      for(let c=0;c<3;c++){
+        const a = indices[0][c], b = indices[1][c], c2 = indices[2][c]
+        if(a===b && b===c2) wins.push({name:`縦 ${c+1}`, cells:[{r:0,c},{r:1,c},{r:2,c}], symbolIndex:a})
+      }
+      // diag TL-BR
+      if(indices[0][0]===indices[1][1] && indices[1][1]===indices[2][2]){
+        wins.push({name:'斜め ↘', cells:[{r:0,c:0},{r:1,c:1},{r:2,c:2}], symbolIndex:indices[1][1]})
+      }
+      // diag BL-TR
+      if(indices[2][0]===indices[1][1] && indices[1][1]===indices[0][2]){
+        wins.push({name:'斜め ↗', cells:[{r:2,c:0},{r:1,c:1},{r:0,c:2}], symbolIndex:indices[1][1]})
+      }
+      return wins
+    }
+
+    // 支払いルール: 3つ揃いはベットの5倍
+    const PAY_MULTIPLIER = 5
+
     document.getElementById('spin').addEventListener('click', ()=>{
-      const bet = parseInt(betInput.value)
+      const bet = parseInt(betInput.value,10)
       if(isNaN(bet) || bet<=0){alert('ベット額を正しく入力してください');return}
       if(bet>coins){alert('コインが足りません');return}
 
+      // コインを先に引く
       coins -= bet
       coinsEl.textContent = coins
 
-      const results = []
-      for(let r=0;r<3;r++){
-        const track = document.getElementById('track-'+r)
-        const index = Math.floor(Math.random()*symbols.length)
-        results.push(index)
-        const offset = -index*150
-        track.style.transform = `translateY(${offset}px)`
+      const indices = randomIndices()
+      updateGridWithIndices(indices)
+
+      const wins = checkPaylines(indices)
+      let totalWin = 0
+      if(wins.length>0){
+        // 各ラインごとに同じ倍率
+        totalWin = wins.length * bet * PAY_MULTIPLIER
+        coins += totalWin
+        coinsEl.textContent = coins
+        // ハイライト
+        wins.forEach(w=>{
+          w.cells.forEach(cell=>{
+            gridEl.querySelector(`#cell-${cell.r}-${cell.c}`).classList.add('highlight')
+          })
+        })
       }
 
-      showResult(results, bet)
+      // 結果表示
+      resultEl.innerHTML = ''
+      if(wins.length>0){
+        resultEl.innerHTML = `<div style="color:lime">当たり！ ${wins.length} ラインで +${totalWin}コイン</div>`
+        resultEl.innerHTML += `<div style="margin-top:6px">勝ちライン: ${wins.map(w=>w.name).join(', ')}</div>`
+      } else {
+        resultEl.innerHTML = `<div style="color:#aaa">はずれ</div>`
+      }
+
+      // ハイライトは 1500ms で消す
+      setTimeout(()=>{
+        document.querySelectorAll('.cell').forEach(el=>el.classList.remove('highlight'))
+      },1500)
     })
 
-    function showResult(results, bet){
-      resultEl.innerHTML = '結果: ' + results.map(i=>`<img src="${symbols[i]}" style="width:50px;height:50px">`).join('')
-      if(results[0]===results[1] && results[1]===results[2]){
-        const win = bet*5
-        coins += win
-        coinsEl.textContent = coins
-        resultEl.innerHTML += `<div style='color:lime'>当たり！ +${win}コイン</div>`
-      } else {
-        resultEl.innerHTML += `<div style='color:#aaa'>はずれ</div>`
-      }
-    }
+    // 管理者が symbols を直接編集する UI
+    const symbolsInput = document.getElementById('symbolsInput')
+    document.getElementById('applySymbols').addEventListener('click', ()=>{
+      const lines = symbolsInput.value.split('
+').map(s=>s.trim()).filter(Boolean)
+      if(lines.length<2){if(!confirm('シンボルが少ないとゲームがつまらなくなります。本当に適用しますか？')) return}
+      symbols = lines
+      // 即時グリッド更新（既存表示の画像を先頭から当てはめる）
+      const indices = [[0,1,2],[0,1,2],[0,1,2]].map(r=>r.map(i=>i % symbols.length))
+      updateGridWithIndices(indices)
+      alert('シンボルを更新しました。')
+    })
 
-    // 初期表示
-    buildTracks()
+    document.getElementById('resetDefault').addEventListener('click', ()=>{
+      symbols = [
+        'https://via.placeholder.com/150/ff0000/ffffff?text=A',
+        'https://via.placeholder.com/150/00ff00/ffffff?text=B',
+        'https://via.placeholder.com/150/0000ff/ffffff?text=C',
+        'https://via.placeholder.com/150/f59e0b/000000?text=★'
+      ]
+      symbolsInput.value = symbols.join('
+')
+      updateGridWithIndices([[0,1,2],[0,1,2],[0,1,2]])
+      alert('デフォルトに戻しました')
+    })
+
+    document.getElementById('randomizeSymbols').addEventListener('click', ()=>{
+      // symbols 配列をシャッフルして適用
+      for(let i=symbols.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[symbols[i],symbols[j]]=[symbols[j],symbols[i]]}
+      symbolsInput.value = symbols.join('
+')
+      updateGridWithIndices([[0,1,2],[0,1,2],[0,1,2]].map(r=>r.map(i=>i % symbols.length)))
+      alert('シンボルをランダムに並び替えました')
+    })
+
+    document.getElementById('showSymbols').addEventListener('click', ()=>{
+      alert('現在のシンボル一覧:
+' + symbols.map((s,i)=>`${i}: ${s}`).join('
+'))
+    })
+
+    // textarea に初期値をセット
+    document.getElementById('symbolsInput').value = symbols.join('
+')
+    // 初期グリッドは先頭3つを縦横に配置
+    updateGridWithIndices([[0,1,2],[0,1,2],[0,1,2]].map(r=>r.map(i=>i % symbols.length)))
+    coinsEl.textContent = coins
   </script>
 </body>
 </html>
