@@ -52,15 +52,8 @@
       <h3 style="margin:6px 0">管理者用 — シンボル画像をここで設定</h3>
       <p style="margin:4px 0;color:#9fb">（画像はリポジトリ内 images/ に置き、ここにパスを並べてください）</p>
       <textarea id="symbolsInput" style="width:100%;height:80px;border-radius:6px;background:#041220;color:#dfe;border:1px solid #234;padding:8px">images/slot1.png
-images/slot1.png
-images/slot2.png
-images/slot3.png
-images/slot4.png
-images/slot5.png
-images/slot6.png
-images/slot7.png
-images/slot8.png
-images/slot9.png</textarea>
+1~9までの数字とそれに対応する絵がスロットで出ます
+      </textarea>
       <div style="margin-top:8px;display:flex;gap:8px">
         <button id="applySymbols">適用して反映</button>
         <button id="resetDefault">デフォルトに戻す</button>
@@ -78,10 +71,15 @@ images/slot9.png</textarea>
 
     // 初期シンボル（管理者が編集可能）
     let symbols = [
-      'https://via.placeholder.com/150/ff0000/ffffff?text=A',
-      'https://via.placeholder.com/150/00ff00/ffffff?text=B',
-      'https://via.placeholder.com/150/0000ff/ffffff?text=C',
-      'https://via.placeholder.com/150/f59e0b/000000?text=★'
+       'images/slot1.png',
+  'images/slot2.png',
+  'images/slot3.png',
+  'images/slot4.png',
+  'images/slot5.png',
+  'images/slot6.png',
+  'images/slot7.png',
+  'images/slot8.png',
+  'images/slot9.png'
     ]
 
     const gridEl = document.getElementById('grid')
