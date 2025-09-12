@@ -12,10 +12,12 @@
     .cell img{max-width:100%;max-height:100%}
     .panel{display:flex;gap:12px;justify-content:center;margin:12px}
     button{padding:10px 16px;border:none;border-radius:6px;background:#f59e0b;color:#000;font-weight:bold;cursor:pointer}
-    .cards{display:flex;gap:12px;justify-content:center;margin-top:16px}
-    .card{width:100px;height:150px;border:2px solid #444;border-radius:8px;cursor:pointer;overflow:hidden}
+    .cards{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+    .card{width:160px;aspect-ratio:8/5;border:2px solid #444;border-radius:8px;cursor:pointer;overflow:hidden;position:relative}
     .card img{width:100%;height:100%;object-fit:cover}
     .selected{border:3px solid #0ff}
+    .mana{margin:8px;font-size:18px}
+    #best{margin-top:10px;color:#0ff;font-weight:bold}
   </style>
 </head>
 <body>
@@ -30,19 +32,30 @@
 
     <h2>カードを選択</h2>
     <div class="cards">
-      <div class="card" data-card="reroll"><img src="images/card1.png" alt="Card1"></div>
-      <div class="card" data-card="multiplier"><img src="images/card2.png" alt="Card2"></div>
+      <div class="card" data-card="reroll" data-cost="2"><img src="images/card1.png" alt="Card1"></div>
+      <div class="card" data-card="multiplier" data-cost="3"><img src="images/card2.png" alt="Card2"></div>
+      <div class="card" data-card="wild" data-cost="4"><img src="images/card3.png" alt="Card3"></div>
+      <div class="card" data-card="insurance" data-cost="2"><img src="images/card4.png" alt="Card4"></div>
+      <div class="card" data-card="superspin" data-cost="5"><img src="images/card5.png" alt="Card5"></div>
     </div>
 
+    <div class="mana">マナ: <span id="mana">5</span>/5</div>
     <div id="result"></div>
+    <div id="best"></div>
   </div>
 
   <script>
     const slotEl = document.getElementById('slot')
     const resultEl = document.getElementById('result')
+    const manaEl = document.getElementById('mana')
+    const bestEl = document.getElementById('best')
     let selectedCard = null
     let lastResults = []
     let multiplier = 1
+    let mana = 5
+    let score = 0
+    let bestScore = localStorage.getItem('bestScore') || 0
+    bestEl.innerText = "自己ベスト: " + bestScore
 
     // スロットの画像（固定）
     const symbols = [
@@ -60,22 +73,40 @@
     // カード選択処理
     document.querySelectorAll('.card').forEach(c=>{
       c.addEventListener('click', ()=>{
+        const cost = parseInt(c.dataset.cost)
+        if(mana < cost){
+          alert("マナが足りません")
+          return
+        }
         document.querySelectorAll('.card').forEach(cc=>cc.classList.remove('selected'))
         c.classList.add('selected')
-        selectedCard = c.dataset.card
+        selectedCard = {type:c.dataset.card, cost:cost}
       })
     })
 
     // SPINボタン
     document.getElementById('spin').addEventListener('click', ()=>{
       multiplier = 1
+      let insurance = false
       spinAll()
+
       if(selectedCard){
-        applyCard(selectedCard)
+        if(mana >= selectedCard.cost){
+          mana -= selectedCard.cost
+          applyCard(selectedCard.type)
+          if(selectedCard.type==="insurance") insurance = true
+        }
         selectedCard = null
         document.querySelectorAll('.card').forEach(c=>c.classList.remove('selected'))
       }
-      checkWin()
+
+      const win = checkWin()
+      if(!win && insurance){
+        resultEl.innerHTML += "<br>カード効果: 保険発動 → ベット返却！"
+        score += 1
+      }
+      updateManaUI()
+      updateBestScore(score)
     })
 
     function spinAll(){
@@ -97,7 +128,6 @@
 
     function applyCard(card){
       if(card==="reroll"){
-        // ランダムに1列を選んで再抽選
         const col = Math.floor(Math.random()*3)
         for(let r=0;r<3;r++){
           const index = Math.floor(Math.random()*symbols.length)
@@ -108,36 +138,60 @@
       }else if(card==="multiplier"){
         multiplier = 2
         resultEl.innerHTML = "カード効果: 配当2倍！"
+      }else if(card==="wild"){
+        const r = Math.floor(Math.random()*3)
+        const c = Math.floor(Math.random()*3)
+        const index = Math.floor(Math.random()*symbols.length)
+        lastResults[r][c] = index
+        slotEl.children[r*3+c].innerHTML = `<img src="${symbols[index]}">`
+        resultEl.innerHTML = "カード効果: ワイルド発動！"
+      }else if(card==="superspin"){
+        spinAll()
+        resultEl.innerHTML = "カード効果: スーパースピン！"
       }
     }
 
     function checkWin(){
       let lines = []
-      // 横
       for(let r=0;r<3;r++){
         if(lastResults[r][0]===lastResults[r][1] && lastResults[r][1]===lastResults[r][2]){
           lines.push(`横${r+1}`)
         }
       }
-      // 縦
       for(let c=0;c<3;c++){
         if(lastResults[0][c]===lastResults[1][c] && lastResults[1][c]===lastResults[2][c]){
           lines.push(`縦${c+1}`)
         }
       }
-      // 斜め
       if(lastResults[0][0]===lastResults[1][1] && lastResults[1][1]===lastResults[2][2]) lines.push("斜め↘")
       if(lastResults[0][2]===lastResults[1][1] && lastResults[1][1]===lastResults[2][0]) lines.push("斜め↙")
 
       if(lines.length>0){
-        resultEl.innerHTML += `<br>当たり! ライン: ${lines.join(", ")} <br>報酬: ${lines.length*5*multiplier} コイン`
+        const reward = lines.length*5*multiplier
+        resultEl.innerHTML += `<br>当たり! ライン: ${lines.join(", ")} <br>報酬: ${reward} コイン`
+        score += reward
+        return true
       }else{
         resultEl.innerHTML += "<br>ハズレ…"
+        return false
       }
     }
 
-    // 初期スピン
+    function updateManaUI(){
+      manaEl.innerText = mana
+      if(mana<5) mana++ // 毎ターン少し回復
+    }
+
+    function updateBestScore(currentScore){
+      if(currentScore > bestScore){
+        bestScore = currentScore
+        localStorage.setItem('bestScore', bestScore)
+      }
+      bestEl.innerText = "自己ベスト: " + bestScore
+    }
+
     spinAll()
+    updateManaUI()
   </script>
 </body>
 </html>
