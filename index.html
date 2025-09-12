@@ -5,6 +5,37 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>1to9 slot</title>
   <style>
+    /* スクロール禁止 */
+body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ラッパーを縦に詰める */
+.wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* スロットマスを少し小さくする */
+.slot-area {
+  grid-template-columns: repeat(3, 90px);
+  grid-template-rows: repeat(3, 110px);
+}
+.cell {
+  width: 90px;
+  height: 110px;
+}
+
+/* カードを少し小さく */
+.card {
+  width: 120px;
+  aspect-ratio: 8/5;
+}
+
     body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
     .wrap{max-width:960px;width:100%;padding:20px;text-align:center}
     .slot-area{display:grid;grid-template-columns:repeat(3,120px);grid-template-rows:repeat(3,150px);gap:8px;justify-content:center;margin:20px auto}
