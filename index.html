@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>1to9 slot</title>
   <style>
+    .status-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+}
+.status-bar div {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
     body{
       margin:0;
       font-family:sans-serif;
@@ -98,10 +110,13 @@
       <button id="spin">SPIN</button>
     </div>
 
-    <div id="result"></div>
-    <div id="coins">所持コイン: 100</div>
-    <div id="mana">マナ: 0</div>
-    <div id="best">自己ベスト: 0</div>
+    <div class="status-bar">
+  <div id="result"></div>
+  <div id="coins">所持コイン: 100</div>
+  <div id="mana">マナ: 0</div>
+  <div id="best">自己ベスト: 0</div>
+</div>
+
 
     <h2>手札</h2>
     <div id="hand" class="hand-area"></div>
