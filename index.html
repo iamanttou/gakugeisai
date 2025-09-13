@@ -37,8 +37,8 @@ h1{margin:5px;font-size:24px}
   gap:6px;
 }
 .cell{
-  width:128px;
-  height:80px;
+  width:192px;
+  height:120px;
   border:2px solid #444;
   border-radius:6px;
   display:flex;
@@ -52,7 +52,7 @@ h1{margin:5px;font-size:24px}
 /* --- ボタンパネル --- */
 .panel{display:flex;gap:6px;margin:8px}
 button{
-  padding:6px 12px;
+  padding:12px 24px;
   border:none;
   border-radius:6px;
   background:#f59e0b;
@@ -66,12 +66,12 @@ button{
   display: flex;
   justify-content: space-around;
   align-items: center;
-  width: 100%;
-  margin: 10px 0;
+  width: 150%;
+  margin: 12px 0;
 }
 .status-bar div {
   margin: 0 10px;
-  font-size: 16px;
+  font-size: 38px;
 }
 
 /* --- 手札 --- */
@@ -155,12 +155,12 @@ let doubleReward=false, insuranceActive=false, superspin=false, wildActive=false
 // --- Deck ---
 const cardTypes=[
   {img:"images/card1.png", type:"reroll", cost:2},
-  {img:"images/card2.png", type:"double", cost:3},
-  {img:"images/card3.png", type:"wild", cost:4},
+  {img:"images/card2.png", type:"double", cost:2},
+  {img:"images/card3.png", type:"wild", cost:3},
   {img:"images/card4.png", type:"insurance", cost:2},
-  {img:"images/card5.png", type:"superspin", cost:5},
-  {img:"images/card6.png", type:"manarecover", cost:0},
-  {img:"images/card7.png", type:"coinplus", cost:0}
+  {img:"images/card5.png", type:"superspin", cost:3},
+  {img:"images/card6.png", type:"manarecover", cost:1},
+  {img:"images/card7.png", type:"coinplus", cost:1}
 ]
 
 let deck=[], hand=[], discard=[]
