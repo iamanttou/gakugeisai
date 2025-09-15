@@ -95,19 +95,7 @@
     overflow:hidden;
   }
   .card img{ width:100%; height:100%; object-fit:cover; }
-  .card .meta{
-    position:absolute;
-    bottom:6px;
-    left:6px;
-    right:6px;
-    text-align:center;
-    font-size:11px;
-    color:#e6eef8;
-    padding:2px 4px;
-    background:rgba(0,0,0,0.25);
-    border-radius:6px;
-  }
-
+  
   /* small helper */
   .muted{ color:#9fb0c9; font-weight:500; font-size:13px }
 </style>
@@ -281,12 +269,31 @@ function applyCardEffect(card){
 
 /* ----- Weighted random（当たりやすく補正） ----- */
 const probs = [0.15,0.15,0.15,0.1,0.1,0.1,0.1,0.075,0.075]; // index 0..8
-function weightedRandom(){
+/* ----- Weighted random（当たりやすさをモードごとに変動） ----- */
+let mode = "normal"; // "lucky" | "normal" | "unlucky"
+
+// モードを毎回SPINのときに決める（プレイヤーには非表示）
+function setMode(){
   const rnd = Math.random();
-  let s = 0;
+  if(rnd < 0.2) mode = "lucky";       // 20%の確率で当たりやすい
+  else if(rnd < 0.7) mode = "normal"; // 50%で普通
+  else mode = "unlucky";              // 30%で当たりにくい
+}
+
+function weightedRandom(){
+  let probs;
+  if(mode==="lucky"){
+    probs = [0.25,0.2,0.15,0.1,0.1,0.07,0.05,0.04,0.04];
+  } else if(mode==="unlucky"){
+    probs = [0.05,0.05,0.07,0.1,0.1,0.15,0.15,0.16,0.17];
+  } else { // normal
+    probs = [0.15,0.15,0.15,0.1,0.1,0.1,0.1,0.075,0.075];
+  }
+  const rnd = Math.random();
+  let s=0;
   for(let i=0;i<probs.length;i++){
-    s += probs[i];
-    if(rnd < s) return i;
+    s+=probs[i];
+    if(rnd<s) return i;
   }
   return probs.length-1;
 }
@@ -380,7 +387,10 @@ function endTurn(){
 
 /* ----- イベントバインド ----- */
 document.getElementById("spin").addEventListener("click", ()=>{
+  setMode(); // ← 追加
   startSpinAll();
+});
+
 });
 document.getElementById("stop-0").addEventListener("click", ()=> stopColumn(0));
 document.getElementById("stop-1").addEventListener("click", ()=> stopColumn(1));
