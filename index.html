@@ -13,33 +13,42 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      height: 100vh; /* 全画面 */
+      overflow: hidden;
     }
     .wrap {
-      max-width: 1200px;
-      width: 100%;
-      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin: 4px 0;
+      font-size: 22px;
     }
     .stats {
       display: flex;
       gap: 20px;
-      margin-bottom: 8px;
-      font-size: 18px;
+      margin-bottom: 4px;
+      font-size: 16px;
       font-weight: bold;
     }
     .slot-area {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-gap: 16px;
-      margin: 10px 0;
-      width: 50%;
+      grid-gap: 8px;
+      flex: 1;
+      max-height: 60vh; /* 高さ制御 */
+    }
+    .reel {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 4px;
     }
     .cell {
-      width: 100%;
-      aspect-ratio: 8/5;
       border: 2px solid #444;
       border-radius: 8px;
       background: #111;
@@ -47,7 +56,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      position: relative;
+      aspect-ratio: 8/5;
     }
     .cell img {
       width: 100%;
@@ -56,28 +65,30 @@
     }
     .panel {
       display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin: 8px 0;
+      gap: 8px;
+      margin: 4px 0;
     }
     button {
-      padding: 10px 16px;
+      padding: 6px 12px;
       border: none;
       border-radius: 6px;
       background: #f59e0b;
       color: #000;
       font-weight: bold;
       cursor: pointer;
+      font-size: 14px;
     }
     .hand {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 8px;
+      margin-top: 4px;
+      max-height: 20vh;
+      overflow: auto;
     }
     .card {
-      width: 125px; /* 比率5:8 */
+      width: 90px;
       aspect-ratio: 5/8;
       border: 2px solid #fff;
       border-radius: 8px;
@@ -93,10 +104,7 @@
       height: 100%;
       object-fit: cover;
     }
-    /* フィルムと文字を消す */
-    .card .meta {
-      display: none;
-    }
+    .card .meta { display: none; }
   </style>
 </head>
 <body>
@@ -110,22 +118,28 @@
     </div>
 
     <div class="slot-area" id="slot-area">
-      <div class="cell"><img src="images/slot1.png"></div>
-      <div class="cell"><img src="images/slot2.png"></div>
-      <div class="cell"><img src="images/slot3.png"></div>
-      <div class="cell"><img src="images/slot4.png"></div>
-      <div class="cell"><img src="images/slot5.png"></div>
-      <div class="cell"><img src="images/slot6.png"></div>
-      <div class="cell"><img src="images/slot7.png"></div>
-      <div class="cell"><img src="images/slot8.png"></div>
-      <div class="cell"><img src="images/slot9.png"></div>
+      <div class="reel" id="reel0">
+        <div class="cell"><img src="images/slot1.png"></div>
+        <div class="cell"><img src="images/slot2.png"></div>
+        <div class="cell"><img src="images/slot3.png"></div>
+      </div>
+      <div class="reel" id="reel1">
+        <div class="cell"><img src="images/slot4.png"></div>
+        <div class="cell"><img src="images/slot5.png"></div>
+        <div class="cell"><img src="images/slot6.png"></div>
+      </div>
+      <div class="reel" id="reel2">
+        <div class="cell"><img src="images/slot7.png"></div>
+        <div class="cell"><img src="images/slot8.png"></div>
+        <div class="cell"><img src="images/slot9.png"></div>
+      </div>
     </div>
 
     <div class="panel">
       <button id="spin">SPIN</button>
-      <button id="stop1">STOP 1</button>
-      <button id="stop2">STOP 2</button>
-      <button id="stop3">STOP 3</button>
+      <button id="stop0">STOP 1</button>
+      <button id="stop1">STOP 2</button>
+      <button id="stop2">STOP 3</button>
       <button id="endturn">End Turn</button>
     </div>
 
@@ -133,51 +147,43 @@
   </div>
 
   <script>
-    // --- 基本データ ---
     const slotSymbols = [
       "images/slot1.png","images/slot2.png","images/slot3.png",
       "images/slot4.png","images/slot5.png","images/slot6.png",
       "images/slot7.png","images/slot8.png","images/slot9.png"
     ];
-    let coins = 100;
-    let mana = 0;
-    let best = 0;
+    let coins = 100, mana = 0, best = 0;
 
-    // --- 当たりやすさ補正モード ---
-    let mode = "normal"; 
-    function setMode(){
-      const r = Math.random();
-      if(r < 0.3) mode = "easy";
-      else if(r < 0.6) mode = "hard";
-      else mode = "normal";
+    const reels = [0,1,2].map(i => document.querySelectorAll(`#reel${i} img`));
+    let intervals = [null,null,null];
+    let stopped = [false,false,false];
+
+    function startSpin(){
+      stopped = [false,false,false];
+      for(let i=0;i<3;i++){
+        intervals[i] = setInterval(()=>{
+          for(let j=0;j<3;j++){
+            const idx = Math.floor(Math.random()*slotSymbols.length);
+            reels[i][j].src = slotSymbols[idx];
+          }
+        },100);
+      }
     }
-
-    function weightedRandom(){
-      if(mode==="easy" && Math.random()<0.5){
-        return Math.floor(Math.random()*3);
+    function stopReel(i){
+      if(intervals[i]){
+        clearInterval(intervals[i]);
+        intervals[i] = null;
+        stopped[i] = true;
       }
-      if(mode==="hard" && Math.random()<0.5){
-        return Math.floor(Math.random()*slotSymbols.length);
-      }
-      return Math.floor(Math.random()*slotSymbols.length);
-    }
-
-    // --- スロット処理 ---
-    const cells = [...document.querySelectorAll(".cell img")];
-    function startSpinAll(){
-      for(let i=0;i<cells.length;i++){
-        const idx = weightedRandom();
-        cells[i].src = slotSymbols[idx];
-      }
-      checkWin();
+      if(stopped.every(s=>s)) checkWin();
     }
 
     function checkWin(){
-      // ライン当たり判定
+      const cells = [...document.querySelectorAll(".cell img")];
       const combos = [
-        [0,1,2],[3,4,5],[6,7,8], // 横
-        [0,3,6],[1,4,7],[2,5,8], // 縦
-        [0,4,8],[2,4,6]          // 斜め
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
       ];
       let win = false;
       combos.forEach(c=>{
@@ -186,73 +192,59 @@
         }
       });
       if(win){
-        coins += 25; // 当たりは固定25
+        coins += 25;
         if(coins > best) best = coins;
       }
       updateStats();
     }
 
-    // --- カード ---
+    // カード関連は省略（前回と同じ仕組み）
     const deck = [
       {name:"Wild", cost:3, effect:"wild"},
       {name:"+10 Coins", cost:2, effect:"coins"},
       {name:"Mana +2", cost:0, effect:"mana"},
     ];
     let hand = [];
-
     function drawCard(){
       const card = deck[Math.floor(Math.random()*deck.length)];
-      hand.push(card);
-      renderHand();
+      hand.push(card); renderHand();
     }
-
     function renderHand(){
       const handEl = document.getElementById("hand");
-      handEl.innerHTML = "";
+      handEl.innerHTML="";
       hand.forEach((c,i)=>{
-        const d = document.createElement("div");
-        d.className = "card";
-        d.innerHTML = `<img src="images/card${i%3+1}.png">`;
-        d.onclick = ()=>useCard(i);
+        const d=document.createElement("div");
+        d.className="card";
+        d.innerHTML=`<img src="images/card${i%3+1}.png">`;
+        d.onclick=()=>useCard(i);
         handEl.appendChild(d);
       });
     }
-
     function useCard(i){
-      const card = hand[i];
-      if(mana < card.cost) return;
-      mana -= card.cost;
+      const card=hand[i];
+      if(mana<card.cost)return;
+      mana-=card.cost;
       if(card.effect==="coins") coins+=10;
       if(card.effect==="mana") mana+=2;
-      if(card.effect==="wild"){
-        alert("次に選んだセルを好きな絵に変えられます！");
-      }
-      hand.splice(i,1);
-      renderHand();
-      updateStats();
+      if(card.effect==="wild"){alert("Wild発動! 次に選んだセルを自由に変更できます");}
+      hand.splice(i,1); renderHand(); updateStats();
     }
 
-    // --- UI更新 ---
     function updateStats(){
-      document.getElementById("coins").textContent = "Coins: " + coins;
-      document.getElementById("mana").textContent = "Mana: " + mana;
-      document.getElementById("best").textContent = "Best: " + best;
+      document.getElementById("coins").textContent="Coins: "+coins;
+      document.getElementById("mana").textContent="Mana: "+mana;
+      document.getElementById("best").textContent="Best: "+best;
     }
 
-    // --- ボタン処理 ---
-    document.getElementById("spin").addEventListener("click", ()=>{
-      setMode();
-      startSpinAll();
-    });
-    document.getElementById("endturn").addEventListener("click", ()=>{
-      mana++;
-      drawCard();
-      updateStats();
+    document.getElementById("spin").addEventListener("click", startSpin);
+    document.getElementById("stop0").addEventListener("click",()=>stopReel(0));
+    document.getElementById("stop1").addEventListener("click",()=>stopReel(1));
+    document.getElementById("stop2").addEventListener("click",()=>stopReel(2));
+    document.getElementById("endturn").addEventListener("click",()=>{
+      mana++; drawCard(); updateStats();
     });
 
-    // 初期化
-    updateStats();
-    drawCard();
+    updateStats(); drawCard();
   </script>
 </body>
 </html>
