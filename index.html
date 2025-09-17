@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1to9 slot</title>
+<title>カードスロットゲーム</title>
 <style>
 body{
   margin:0;
@@ -17,7 +17,7 @@ body{
   min-height:100vh;
 }
 .wrap{
-  transform: scale(0.8); /* 全体縮小で1画面に収める */
+  transform: scale(0.8);
   transform-origin: top center;
   display:flex;
   flex-direction:column;
@@ -100,7 +100,7 @@ body{
 }
 .card{
   aspect-ratio:5/8;
-  width:64px; /* 少し小さめに */
+  width:64px;
   background:#333;
   border:2px solid #666;
   border-radius:6px;
@@ -187,8 +187,155 @@ body{
 </div>
 
 <script>
-/* --- （前のロジックと同じ、Luck補正・コンボ・カード強化など） --- */
-/* 必要なら前のコードからそのままコピペでOK */
+/* ========= データ ========= */
+let coin=100;
+let mana=0;
+let turn=1;
+let multiplier=1;
+
+let hand=[];
+let deck=[];
+let discard=[];
+
+// スロット画像
+const symbols=[
+  "images/slot1.png",
+  "images/slot2.png",
+  "images/slot3.png",
+  "images/slot4.png",
+  "images/slot5.png",
+  "images/slot6.png",
+  "images/slot7.png",
+  "images/slot8.png",
+  "images/slot9.png"
+];
+
+// カード定義
+const cardTypes=[
+  {img:"images/card1.png", type:"reroll", cost:2, level:1},
+  {img:"images/card2.png", type:"double", cost:2, level:1},
+  {img:"images/card3.png", type:"wild", cost:3, level:1},
+  {img:"images/card4.png", type:"insurance", cost:2, level:1},
+  {img:"images/card5.png", type:"superspin", cost:3, level:1},
+  {img:"images/card6.png", type:"manarecover", cost:1, level:1},
+  {img:"images/card7.png", type:"coinplus", cost:1, level:1}
+];
+
+/* ========= 初期化 ========= */
+function initDeck(){
+  deck=[];
+  for(let i=0;i<3;i++){
+    deck=deck.concat(cardTypes.map(c=>({...c})));
+  }
+  shuffle(deck);
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+function drawCard(){
+  if(hand.length >= 7) return;
+  if(deck.length===0){
+    deck=discard;
+    discard=[];
+    shuffle(deck);
+  }
+  if(deck.length>0){
+    const card=deck.pop();
+    hand.push(card);
+    renderHand();
+  }
+}
+function renderHand(){
+  const handDiv=document.getElementById("hand");
+  handDiv.innerHTML="";
+  hand.forEach((card,idx)=>{
+    const c=document.createElement("div");
+    c.className="card";
+    const img=document.createElement("img");
+    img.src=card.img;
+    c.appendChild(img);
+    const lv=document.createElement("div");
+    lv.className="card-level";
+    lv.textContent="Lv"+card.level;
+    c.appendChild(lv);
+    c.onclick=()=>playCard(idx);
+    handDiv.appendChild(c);
+  });
+}
+
+/* ========= カード使用 ========= */
+function playCard(idx){
+  const card=hand[idx];
+  if(mana<card.cost) return;
+  mana-=card.cost;
+  document.getElementById("mana").textContent=mana;
+  discard.push(card);
+  hand.splice(idx,1);
+  renderHand();
+  // 効果処理は省略（ここに書く）
+}
+
+/* ========= スロット回転 ========= */
+let spinning=[false,false,false];
+
+function spin(){
+  turn++;
+  mana++;
+  drawCard();
+  document.getElementById("turn").textContent=turn;
+  document.getElementById("mana").textContent=mana;
+
+  for(let col=0;col<3;col++){
+    spinning[col]=true;
+    spinReel(col);
+  }
+}
+
+function spinReel(col){
+  if(!spinning[col]) return;
+  for(let row=0;row<3;row++){
+    const idx=row*3+col;
+    const cell=document.getElementById("cell"+idx);
+    const img=document.createElement("img");
+    img.src=symbols[Math.floor(Math.random()*symbols.length)];
+    cell.innerHTML="";
+    cell.appendChild(img);
+    cell.appendChild(document.getElementById("luck"+idx));
+  }
+  setTimeout(()=>spinReel(col),100);
+}
+
+function stopReel(col){
+  spinning[col]=false;
+  checkWin();
+}
+
+/* ========= 揃い判定 ========= */
+function checkWin(){
+  if(spinning.some(s=>s)) return;
+  const mid0=document.getElementById("cell3").firstChild.src;
+  const mid1=document.getElementById("cell4").firstChild.src;
+  const mid2=document.getElementById("cell5").firstChild.src;
+  if(mid0===mid1 && mid1===mid2){
+    const bet=parseInt(document.getElementById("betInput").value)||1;
+    const reward=bet*5*multiplier;
+    coin+=reward;
+    multiplier++;
+    alert("当たり！ +"+reward+"コイン");
+  }else{
+    multiplier=1;
+  }
+  document.getElementById("coin").textContent=coin;
+  document.getElementById("multiplier").textContent="x"+multiplier;
+}
+
+/* ========= 初期起動 ========= */
+initDeck();
+drawCard(); // 初期1枚
+document.getElementById("spinBtn").onclick=()=>spin();
 </script>
 </body>
 </html>
