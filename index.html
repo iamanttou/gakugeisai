@@ -13,7 +13,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh; /* 全画面 */
+      height: 100vh;
       overflow: hidden;
     }
     .wrap {
@@ -22,26 +22,22 @@
       align-items: center;
       width: 100%;
       height: 100%;
-      padding: 8px;
+      padding: 6px;
       box-sizing: border-box;
     }
-    h1 {
-      margin: 4px 0;
-      font-size: 22px;
-    }
+    h1 { margin: 4px 0; font-size: 20px; }
     .stats {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       margin-bottom: 4px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
     }
     .slot-area {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      grid-gap: 8px;
-      flex: 1;
-      max-height: 60vh; /* 高さ制御 */
+      grid-gap: 6px;
+      height: 35vh; /* セルを縮小 */
     }
     .reel {
       display: grid;
@@ -50,7 +46,7 @@
     }
     .cell {
       border: 2px solid #444;
-      border-radius: 8px;
+      border-radius: 6px;
       background: #111;
       display: flex;
       align-items: center;
@@ -65,7 +61,7 @@
     }
     .panel {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin: 4px 0;
     }
     button {
@@ -91,7 +87,7 @@
       width: 90px;
       aspect-ratio: 5/8;
       border: 2px solid #fff;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
       background: #222;
@@ -99,25 +95,20 @@
       align-items: center;
       justify-content: center;
     }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
     .card .meta { display: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>[1to9 slot]</h1>
-
     <div class="stats">
       <div id="coins">Coins: 100</div>
       <div id="mana">Mana: 0</div>
       <div id="best">Best: 0</div>
     </div>
 
-    <div class="slot-area" id="slot-area">
+    <div class="slot-area">
       <div class="reel" id="reel0">
         <div class="cell"><img src="images/slot1.png"></div>
         <div class="cell"><img src="images/slot2.png"></div>
@@ -140,7 +131,6 @@
       <button id="stop0">STOP 1</button>
       <button id="stop1">STOP 2</button>
       <button id="stop2">STOP 3</button>
-      <button id="endturn">End Turn</button>
     </div>
 
     <div class="hand" id="hand"></div>
@@ -175,7 +165,7 @@
         intervals[i] = null;
         stopped[i] = true;
       }
-      if(stopped.every(s=>s)) checkWin();
+      if(stopped.every(s=>s)) endTurn(); // 全部止まったらターン終了処理
     }
 
     function checkWin(){
@@ -198,13 +188,19 @@
       updateStats();
     }
 
-    // カード関連は省略（前回と同じ仕組み）
+    // --- カードデッキ ---
     const deck = [
       {name:"Wild", cost:3, effect:"wild"},
       {name:"+10 Coins", cost:2, effect:"coins"},
       {name:"Mana +2", cost:0, effect:"mana"},
+      {name:"Mana Recovery", cost:0, effect:"manarecover"},
+      {name:"Double Coins", cost:5, effect:"double"},
+      {name:"Steal 5", cost:2, effect:"steal"},
+      {name:"Destroy", cost:4, effect:"destroy"},
+      {name:"Lucky Spin", cost:3, effect:"lucky"},
     ];
     let hand = [];
+
     function drawCard(){
       const card = deck[Math.floor(Math.random()*deck.length)];
       hand.push(card); renderHand();
@@ -215,7 +211,7 @@
       hand.forEach((c,i)=>{
         const d=document.createElement("div");
         d.className="card";
-        d.innerHTML=`<img src="images/card${i%3+1}.png">`;
+        d.innerHTML=`<img src="images/card${(i%8)+1}.png">`;
         d.onclick=()=>useCard(i);
         handEl.appendChild(d);
       });
@@ -226,6 +222,11 @@
       mana-=card.cost;
       if(card.effect==="coins") coins+=10;
       if(card.effect==="mana") mana+=2;
+      if(card.effect==="manarecover") mana+=3;
+      if(card.effect==="double") coins*=2;
+      if(card.effect==="steal") coins-=5;
+      if(card.effect==="destroy") coins=0;
+      if(card.effect==="lucky") coins+=50;
       if(card.effect==="wild"){alert("Wild発動! 次に選んだセルを自由に変更できます");}
       hand.splice(i,1); renderHand(); updateStats();
     }
@@ -236,13 +237,17 @@
       document.getElementById("best").textContent="Best: "+best;
     }
 
+    function endTurn(){
+      mana++;        // 毎ターン +1 マナ
+      drawCard();    // 1 枚ドロー
+      checkWin();    // 勝利判定
+      updateStats();
+    }
+
     document.getElementById("spin").addEventListener("click", startSpin);
     document.getElementById("stop0").addEventListener("click",()=>stopReel(0));
     document.getElementById("stop1").addEventListener("click",()=>stopReel(1));
     document.getElementById("stop2").addEventListener("click",()=>stopReel(2));
-    document.getElementById("endturn").addEventListener("click",()=>{
-      mana++; drawCard(); updateStats();
-    });
 
     updateStats(); drawCard();
   </script>
