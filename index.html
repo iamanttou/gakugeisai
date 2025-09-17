@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1to9 slot</title>
+<title>カードスロットゲーム</title>
 <style>
 body{
   margin:0;
@@ -17,13 +17,12 @@ body{
   min-height:100vh;
 }
 .wrap{
-  transform:scale(0.9);
-  transform-origin:top center;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:12px;
   padding:12px;
+  width: 800px;
 }
 
 /* スロットエリア */
@@ -31,9 +30,7 @@ body{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
   gap:6px;
-  width:90%;
-  max-width:600px;
-  margin:auto;
+  width:100%;
 }
 .cell{
   aspect-ratio:8/5;
@@ -43,6 +40,8 @@ body{
   align-items:center;
   justify-content:center;
   background:#111;
+  font-size:2rem;
+  color:#0f0;
 }
 .cell img{
   width:100%;
@@ -89,6 +88,18 @@ body{
   height:100%;
   object-fit:contain;
 }
+
+/* スピンボタン */
+#spinBtn{
+  margin:12px;
+  padding:8px 16px;
+  font-size:1.2rem;
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+  background:#0a0;
+  color:#fff;
+}
 </style>
 </head>
 <body>
@@ -96,16 +107,18 @@ body{
 
   <!-- スロットセル -->
   <div class="slot-area">
-    <div class="cell" id="cell0"></div>
-    <div class="cell" id="cell1"></div>
-    <div class="cell" id="cell2"></div>
-    <div class="cell" id="cell3"></div>
-    <div class="cell" id="cell4"></div>
-    <div class="cell" id="cell5"></div>
-    <div class="cell" id="cell6"></div>
-    <div class="cell" id="cell7"></div>
-    <div class="cell" id="cell8"></div>
+    <div class="cell" id="cell0">?</div>
+    <div class="cell" id="cell1">?</div>
+    <div class="cell" id="cell2">?</div>
+    <div class="cell" id="cell3">?</div>
+    <div class="cell" id="cell4">?</div>
+    <div class="cell" id="cell5">?</div>
+    <div class="cell" id="cell6">?</div>
+    <div class="cell" id="cell7">?</div>
+    <div class="cell" id="cell8">?</div>
   </div>
+
+  <button id="spinBtn">スピン (1マナ)</button>
 
   <!-- ステータス -->
   <div class="status">
@@ -125,6 +138,10 @@ let hand=[];
 let deck=[];
 let discard=[];
 
+// スロットのシンボル
+const symbols=["🍒","🍋","🍊","⭐","7️⃣"];
+
+// カード定義
 const cardTypes=[
   {img:"images/card1.png", type:"reroll", cost:2},
   {img:"images/card2.png", type:"double", cost:2},
@@ -154,7 +171,7 @@ function shuffle(a){
 
 // カードを引く（最大7枚）
 function drawCard(){
-  if(hand.length >= 7) return; // 最大7枚制限
+  if(hand.length >= 7) return;
   if(deck.length===0){
     deck=discard;
     discard=[];
@@ -182,7 +199,7 @@ function renderHand(){
   });
 }
 
-// カードを使う
+// カード使用
 function playCard(idx){
   const card=hand[idx];
   if(mana<card.cost) return;
@@ -194,19 +211,57 @@ function playCard(idx){
   applyEffect(card);
 }
 
-// 効果仮処理
+// 効果処理
 function applyEffect(card){
   switch(card.type){
     case "coinplus":
       coin+=5;
-      document.getElementById("coin").textContent=coin;
       break;
     case "manarecover":
       mana+=2;
-      document.getElementById("mana").textContent=mana;
       break;
-    default:
-      console.log("効果発動:",card.type);
+    case "double":
+      coin*=2;
+      break;
+    case "reroll":
+      spin(true);
+      break;
+    case "superspin":
+      spin(true, 3);
+      break;
+    case "wild":
+      // ワイルドで揃う
+      for(let i=0;i<9;i++) document.getElementById("cell"+i).textContent="⭐";
+      break;
+    case "insurance":
+      // 失敗時コイン減少防止
+      alert("次のスピンで損失なし！");
+      break;
+  }
+  document.getElementById("coin").textContent=coin;
+  document.getElementById("mana").textContent=mana;
+}
+
+// スロットスピン
+function spin(isCard=false, times=1){
+  if(!isCard && mana<1) return;
+  if(!isCard) mana--;
+  document.getElementById("mana").textContent=mana;
+
+  for(let t=0;t<times;t++){
+    for(let i=0;i<9;i++){
+      const cell=document.getElementById("cell"+i);
+      const sym=symbols[Math.floor(Math.random()*symbols.length)];
+      cell.textContent=sym;
+    }
+  }
+
+  // 簡単な揃え判定: 中段揃い
+  if(document.getElementById("cell3").textContent===document.getElementById("cell4").textContent &&
+     document.getElementById("cell4").textContent===document.getElementById("cell5").textContent){
+       coin+=10;
+       document.getElementById("coin").textContent=coin;
+       alert("中段揃い！コイン+10");
   }
 }
 
@@ -214,6 +269,8 @@ function applyEffect(card){
 initDeck();
 for(let i=0;i<5;i++) drawCard();
 
+// スピンボタン
+document.getElementById("spinBtn").onclick=()=>spin();
 </script>
 </body>
 </html>
