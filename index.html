@@ -17,12 +17,14 @@ body{
   min-height:100vh;
 }
 .wrap{
+  transform: scale(0.9);
+  transform-origin: top center;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:12px;
   padding:12px;
-  width: 800px;
+  width:800px;
 }
 
 /* スロットエリア */
@@ -40,8 +42,6 @@ body{
   align-items:center;
   justify-content:center;
   background:#111;
-  font-size:2rem;
-  color:#0f0;
 }
 .cell img{
   width:100%;
@@ -53,7 +53,7 @@ body{
 .status{
   display:flex;
   gap:20px;
-  font-size:1.2rem;
+  font-size:1.08rem; /* 90% */
   justify-content:center;
   align-items:center;
   width:100%;
@@ -74,7 +74,7 @@ body{
 }
 .card{
   aspect-ratio:5/8;
-  width:80px;
+  width:72px; /* 90% */
   background:#333;
   border:2px solid #666;
   border-radius:6px;
@@ -92,8 +92,8 @@ body{
 /* スピンボタン */
 #spinBtn{
   margin:12px;
-  padding:8px 16px;
-  font-size:1.2rem;
+  padding:7px 14px; /* 90% */
+  font-size:1.08rem; /* 90% */
   cursor:pointer;
   border:none;
   border-radius:6px;
@@ -107,15 +107,15 @@ body{
 
   <!-- スロットセル -->
   <div class="slot-area">
-    <div class="cell" id="cell0">?</div>
-    <div class="cell" id="cell1">?</div>
-    <div class="cell" id="cell2">?</div>
-    <div class="cell" id="cell3">?</div>
-    <div class="cell" id="cell4">?</div>
-    <div class="cell" id="cell5">?</div>
-    <div class="cell" id="cell6">?</div>
-    <div class="cell" id="cell7">?</div>
-    <div class="cell" id="cell8">?</div>
+    <div class="cell" id="cell0"></div>
+    <div class="cell" id="cell1"></div>
+    <div class="cell" id="cell2"></div>
+    <div class="cell" id="cell3"></div>
+    <div class="cell" id="cell4"></div>
+    <div class="cell" id="cell5"></div>
+    <div class="cell" id="cell6"></div>
+    <div class="cell" id="cell7"></div>
+    <div class="cell" id="cell8"></div>
   </div>
 
   <button id="spinBtn">スピン (1マナ)</button>
@@ -138,8 +138,20 @@ let hand=[];
 let deck=[];
 let discard=[];
 
-// スロットのシンボル
-const symbols=["🍒","🍋","🍊","⭐","7️⃣"];
+// スロット画像（GitHubで管理）
+const slots=[
+  "images/slot1.png",
+  "images/slot2.png",
+  "images/slot3.png",
+  "images/slot4.png",
+  "images/slot5.png"
+  "images/slot6.png",
+  "images/slot7.png",
+  "images/slot8.png",
+  "images/slot9.png",
+
+];
+  
 
 // カード定義
 const cardTypes=[
@@ -230,11 +242,15 @@ function applyEffect(card){
       spin(true, 3);
       break;
     case "wild":
-      // ワイルドで揃う
-      for(let i=0;i<9;i++) document.getElementById("cell"+i).textContent="⭐";
+      for(let i=0;i<9;i++){
+        const cell=document.getElementById("cell"+i);
+        const img=document.createElement("img");
+        img.src="images/slot4.png"; // wild用の固定画像
+        cell.innerHTML="";
+        cell.appendChild(img);
+      }
       break;
     case "insurance":
-      // 失敗時コイン減少防止
       alert("次のスピンで損失なし！");
       break;
   }
@@ -251,17 +267,21 @@ function spin(isCard=false, times=1){
   for(let t=0;t<times;t++){
     for(let i=0;i<9;i++){
       const cell=document.getElementById("cell"+i);
-      const sym=symbols[Math.floor(Math.random()*symbols.length)];
-      cell.textContent=sym;
+      const img=document.createElement("img");
+      img.src=slots[Math.floor(Math.random()*slots.length)];
+      cell.innerHTML="";
+      cell.appendChild(img);
     }
   }
 
-  // 簡単な揃え判定: 中段揃い
-  if(document.getElementById("cell3").textContent===document.getElementById("cell4").textContent &&
-     document.getElementById("cell4").textContent===document.getElementById("cell5").textContent){
-       coin+=10;
-       document.getElementById("coin").textContent=coin;
-       alert("中段揃い！コイン+10");
+  // 簡易中段揃い判定
+  const mid0=document.getElementById("cell3").firstChild.src;
+  const mid1=document.getElementById("cell4").firstChild.src;
+  const mid2=document.getElementById("cell5").firstChild.src;
+  if(mid0===mid1 && mid1===mid2){
+    coin+=10;
+    document.getElementById("coin").textContent=coin;
+    alert("中段揃い！コイン+10");
   }
 }
 
