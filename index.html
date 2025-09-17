@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>[1to9 slot]</title>
+  <title>1to9 slot</title>
   <style>
     body {
       margin: 0;
@@ -11,250 +11,208 @@
       background: #0f1724;
       color: #fff;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .wrap {
-      display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    /* スロットエリア */
+    .slot-area {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 4px;
+      width: 25vw;       /* 全体を画面の1/4くらいに */
+      aspect-ratio: 1/1;
+      margin-top: 10px;
+    }
+
+    .cell {
+      border: 2px solid #444;
+      border-radius: 6px;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      aspect-ratio: 8/5;  /* セル比率 */
+    }
+
+    .cell img {
       width: 100%;
       height: 100%;
-      padding: 6px;
-      box-sizing: border-box;
+      object-fit: contain;
     }
-    h1 { margin: 4px 0; font-size: 20px; }
-    .stats {
+
+    /* ステータス（緑の部分） */
+    #status {
       display: flex;
-      gap: 16px;
-      margin-bottom: 4px;
-      font-size: 15px;
+      justify-content: center;
+      gap: 20px;
+      font-size: 18px;
       font-weight: bold;
+      margin: 8px 0;
     }
-    .slot-area {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 4px;
-  width: 25vw;   /* 画面の1/4くらいに縮小 */
-  aspect-ratio: 1 / 1;
-  margin: 0 auto; /* 中央寄せ */
-}
-  .reel {
-  display: grid;
-  grid-template-rows: repeat(3, 1fr);
-  gap: 4px;
-  
-          .cell {
-  border: 2px solid #444;
-  border-radius: 6px;
-  background: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  aspect-ratio: 8/5; /* セル比率は維持 */
-}
 
-.cell img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+    #status div {
+      background: #222;
+      padding: 6px 10px;
+      border-radius: 6px;
+      min-width: 100px;
+      text-align: center;
+    }
 
-    .panel {
+    /* 手札（赤の部分） */
+    #hand {
       display: flex;
-      gap: 6px;
-      margin: 4px 0;
-    }
-    /* ボタンを大きめに */
-button {
-  padding: 14px 28px;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  background: #f59e0b;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-}
-    }
-    .hand {
-      display: flex;
-      gap: 6px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 4px;
-      max-height: 20vh;
-      overflow: auto;
+      margin-top: 8px;
     }
-    .card {
-  width: 120px;   /* 今より小さくする */
-  height: auto;
-  border: 2px solid #444;
-  border-radius: 8px;
-  overflow: hidden;
-}
 
-.card img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
+    .card {
+      width: 120px;
+      border: 2px solid #444;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .card img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ボタン */
+    button {
+      padding: 14px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #f59e0b;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>[1to9 slot]</h1>
-    <div class="stats">
-      <div id="coins">Coins: 100</div>
-      <div id="mana">Mana: 0</div>
-      <div id="best">Best: 0</div>
-    </div>
+  <h1>1to9 slot</h1>
 
-    <div class="slot-area">
-      <div class="reel" id="reel0">
-        <div class="cell"><img src="images/slot1.png"></div>
-        <div class="cell"><img src="images/slot2.png"></div>
-        <div class="cell"><img src="images/slot3.png"></div>
-      </div>
-      <div class="reel" id="reel1">
-        <div class="cell"><img src="images/slot4.png"></div>
-        <div class="cell"><img src="images/slot5.png"></div>
-        <div class="cell"><img src="images/slot6.png"></div>
-      </div>
-      <div class="reel" id="reel2">
-        <div class="cell"><img src="images/slot7.png"></div>
-        <div class="cell"><img src="images/slot8.png"></div>
-        <div class="cell"><img src="images/slot9.png"></div>
-      </div>
-    </div>
+  <!-- スロットエリア -->
+  <div class="slot-area" id="slot"></div>
 
-    <div class="panel">
-      <button id="spin">SPIN</button>
-      <button id="stop0">STOP 1</button>
-      <button id="stop1">STOP 2</button>
-      <button id="stop2">STOP 3</button>
-    </div>
-
-    <div class="hand" id="hand"></div>
+  <!-- ステータス -->
+  <div id="status">
+    <div id="coins">コイン: 0</div>
+    <div id="mana">マナ: 0</div>
+    <div id="best">自己ベスト: 0</div>
+    <div id="message">効果判定: -</div>
   </div>
 
+  <!-- コントロールボタン -->
+  <div class="controls">
+    <button id="spin">SPIN</button>
+    <button id="stop1">STOP 1列目</button>
+    <button id="stop2">STOP 2列目</button>
+    <button id="stop3">STOP 3列目</button>
+  </div>
+
+  <!-- 手札 -->
+  <div id="hand"></div>
+
   <script>
-    const slotSymbols = [
-      "images/slot1.png","images/slot2.png","images/slot3.png",
-      "images/slot4.png","images/slot5.png","images/slot6.png",
-      "images/slot7.png","images/slot8.png","images/slot9.png"
+    /* ===== 基本データ ===== */
+    const symbols = [
+      "images/slot1.png",
+      "images/slot2.png",
+      "images/slot3.png",
+      "images/slot4.png",
+      "images/slot5.png",
+      "images/slot6.png",
+      "images/slot7.png",
+      "images/slot8.png",
+      "images/slot9.png"
     ];
-    let coins = 100, mana = 0, best = 0;
 
-    const reels = [0,1,2].map(i => document.querySelectorAll(`#reel${i} img`));
-    let intervals = [null,null,null];
-    let stopped = [false,false,false];
+    const slot = document.getElementById("slot");
+    const statusMessage = document.getElementById("message");
+    const coinsEl = document.getElementById("coins");
+    const manaEl = document.getElementById("mana");
+    const bestEl = document.getElementById("best");
+    const handEl = document.getElementById("hand");
 
-    function startSpin(){
-      stopped = [false,false,false];
-      for(let i=0;i<3;i++){
-        intervals[i] = setInterval(()=>{
-          for(let j=0;j<3;j++){
-            const idx = Math.floor(Math.random()*slotSymbols.length);
-            reels[i][j].src = slotSymbols[idx];
-          }
-        },100);
+    let coins = 0;
+    let mana = 0;
+    let best = 0;
+    let grid = Array(3).fill(null).map(()=>Array(3).fill(0));
+
+    /* ===== スロット生成 ===== */
+    function initSlot() {
+      slot.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        const img = document.createElement("img");
+        img.src = symbols[Math.floor(Math.random() * symbols.length)];
+        cell.appendChild(img);
+        slot.appendChild(cell);
       }
     }
-    function stopReel(i){
-      if(intervals[i]){
-        clearInterval(intervals[i]);
-        intervals[i] = null;
-        stopped[i] = true;
-      }
-      if(stopped.every(s=>s)) endTurn(); // 全部止まったらターン終了処理
-    }
 
-    function checkWin(){
-      const cells = [...document.querySelectorAll(".cell img")];
-      const combos = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      let win = false;
-      combos.forEach(c=>{
-        if(cells[c[0]].src===cells[c[1]].src && cells[c[1]].src===cells[c[2]].src){
-          win = true;
-        }
+    /* ===== スピン処理 ===== */
+    function spinAll() {
+      const cells = slot.querySelectorAll(".cell img");
+      cells.forEach(img=>{
+        img.src = symbols[Math.floor(Math.random() * symbols.length)];
       });
-      if(win){
+      checkResult();
+    }
+
+    /* ===== 判定 ===== */
+    function checkResult() {
+      // 当たり: 今回は単純にランダムで25コイン
+      if (Math.random() < 0.3) {
         coins += 25;
-        if(coins > best) best = coins;
+        statusMessage.textContent = "あたり！ +25コイン";
+      } else {
+        statusMessage.textContent = "はずれ...";
       }
-      updateStats();
+      if (coins > best) best = coins;
+      updateStatus();
     }
 
-    // --- カードデッキ ---
-    const deck = [
-      {name:"Wild", cost:3, effect:"wild"},
-      {name:"+10 Coins", cost:2, effect:"coins"},
-      {name:"Mana +2", cost:0, effect:"mana"},
-      {name:"Mana Recovery", cost:0, effect:"manarecover"},
-      {name:"Double Coins", cost:5, effect:"double"},
-      {name:"Steal 5", cost:2, effect:"steal"},
-      {name:"Destroy", cost:4, effect:"destroy"},
-      {name:"Lucky Spin", cost:3, effect:"lucky"},
-    ];
-    let hand = [];
-
-    function drawCard(){
-      const card = deck[Math.floor(Math.random()*deck.length)];
-      hand.push(card); renderHand();
-    }
-    function renderHand(){
-      const handEl = document.getElementById("hand");
-      handEl.innerHTML="";
-      hand.forEach((c,i)=>{
-        const d=document.createElement("div");
-        d.className="card";
-        d.innerHTML=`<img src="images/card${(i%8)+1}.png">`;
-        d.onclick=()=>useCard(i);
-        handEl.appendChild(d);
-      });
-    }
-    function useCard(i){
-      const card=hand[i];
-      if(mana<card.cost)return;
-      mana-=card.cost;
-      if(card.effect==="coins") coins+=10;
-      if(card.effect==="mana") mana+=2;
-      if(card.effect==="manarecover") mana+=3;
-      if(card.effect==="double") coins*=2;
-      if(card.effect==="steal") coins-=5;
-      if(card.effect==="destroy") coins=0;
-      if(card.effect==="lucky") coins+=50;
-      if(card.effect==="wild"){alert("Wild発動! 次に選んだセルを自由に変更できます");}
-      hand.splice(i,1); renderHand(); updateStats();
+    /* ===== ステータス更新 ===== */
+    function updateStatus() {
+      coinsEl.textContent = "コイン: " + coins;
+      manaEl.textContent = "マナ: " + mana;
+      bestEl.textContent = "自己ベスト: " + best;
     }
 
-    function updateStats(){
-      document.getElementById("coins").textContent="Coins: "+coins;
-      document.getElementById("mana").textContent="Mana: "+mana;
-      document.getElementById("best").textContent="Best: "+best;
-    }
+    /* ===== イベント ===== */
+    document.getElementById("spin").addEventListener("click", spinAll);
 
-    function endTurn(){
-      mana++;        // 毎ターン +1 マナ
-      drawCard();    // 1 枚ドロー
-      checkWin();    // 勝利判定
-      updateStats();
-    }
+    // STOPボタンは今は即停止扱い
+    document.getElementById("stop1").addEventListener("click", ()=>statusMessage.textContent="1列目ストップ");
+    document.getElementById("stop2").addEventListener("click", ()=>statusMessage.textContent="2列目ストップ");
+    document.getElementById("stop3").addEventListener("click", ()=>statusMessage.textContent="3列目ストップ");
 
-    document.getElementById("spin").addEventListener("click", startSpin);
-    document.getElementById("stop0").addEventListener("click",()=>stopReel(0));
-    document.getElementById("stop1").addEventListener("click",()=>stopReel(1));
-    document.getElementById("stop2").addEventListener("click",()=>stopReel(2));
-
-    updateStats(); drawCard();
+    /* 初期化 */
+    initSlot();
+    updateStatus();
   </script>
 </body>
 </html>
