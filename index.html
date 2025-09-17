@@ -1,145 +1,155 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>カードスロットゲーム</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>カードスロットゲーム（完全版）</title>
 <style>
-body{
-  margin:0;
-  padding:0;
-  background:#222;
-  color:#fff;
-  font-family:sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-}
-.wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-  padding:12px;
-  width:100%;
-  max-width:900px;
-}
+  :root{
+    --bg:#222;
+    --panel:#111;
+    --muted:#666;
+    --accent:#0a0;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Arial;}
+  .outer{display:flex;justify-content:center;align-items:flex-start;padding:18px;min-height:100%;}
+  .wrap{
+    width:100%; max-width:1100px; box-sizing:border-box;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    transform-origin:top center;
+  }
+  /* Responsive scaling so it fits smaller screens */
+  @media (max-width:1100px){ .wrap{ max-width:96vw; } }
+  @media (max-width:900px){ .wrap{ transform:scale(0.95); } }
+  @media (max-width:600px){ .wrap{ transform:scale(0.78); } }
 
-/* スロットエリア */
-.slot-area{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:6px;
-  width:100%;
-  max-width:90vw;
-}
-.cell{
-  aspect-ratio:8/5;  /* 横長 */
-  border:2px solid #444;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#111;
-}
-.cell img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
+  /* slot area: 3 columns (reels) x 3 rows */
+  .slot-area{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    width:100%;
+    max-width:1000px;
+    margin-bottom:6px;
+  }
+  .cell{
+    aspect-ratio:8/5;           /* 横長 */
+    border:3px solid #444;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--panel);
+    overflow:hidden;
+    position:relative;
+  }
+  .cell img{ width:100%; height:100%; object-fit:contain; user-drag:none; user-select:none; -webkit-user-drag:none; }
 
-/* ステータス */
-.status{
-  display:flex;
-  gap:20px;
-  font-size:1.08rem;
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  border-top:3px solid #0f0;
-  padding-top:8px;
-}
+  /* Luck枠カラー */
+  .lowLuck { border-color:#3ea9ff !important; }   /* 寒色 */
+  .midLuck { border-color:#7ed957 !important; }   /* 中立 */
+  .highLuck{ border-color:#ff6b6b !important; }   /* 暖色 */
 
-/* 手札 */
-.hand{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  flex-wrap:wrap;
-  width:100%;
-  border:3px solid #c33;
-  padding:8px;
-  border-radius:8px;
-}
-.card{
-  aspect-ratio:5/8; /* 縦長 */
-  width:72px;
-  background:#333;
-  border:2px solid #666;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.card img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
+  /* reroll選択 */
+  .cell.selectable{ cursor:pointer; box-shadow:0 0 14px 6px rgba(255,215,0,0.18) inset; transform:translateY(-2px); }
 
-/* スピンボタン */
-#spinBtn{
-  margin:12px;
-  padding:7px 14px;
-  font-size:1.08rem;
-  cursor:pointer;
-  border:none;
-  border-radius:6px;
-  background:#0a0;
-  color:#fff;
-}
+  /* control row */
+  .controls{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; margin-bottom:6px; }
+  input[type=number]{ width:80px; padding:6px; border-radius:6px; border:2px solid #444; background:#111; color:#fff; }
+  button{ padding:8px 12px; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
+  .stopBtns{ display:flex; gap:8px; }
+
+  /* status */
+  .status{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; padding:8px 6px; border-top:3px solid #0f0; }
+  .status .box{ background:#151515; padding:8px 12px; border-radius:8px; border:1px solid #333; min-width:120px; text-align:center; }
+  .status .small{ font-size:0.85rem; color:#ccc; }
+
+  /* hand */
+  .hand{ width:100%; border:3px solid #c33; padding:10px; border-radius:8px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; background:#0a000000; box-sizing:border-box; }
+  .card{ width:72px; aspect-ratio:5/8; border-radius:8px; background:#333; border:2px solid #666; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; }
+  .card img{ width:100%; height:100%; object-fit:contain; }
+  .card .lv{ position:absolute; bottom:2px; right:4px; background:rgba(0,0,0,0.6); padding:2px 6px; border-radius:6px; font-size:0.72rem; }
+
+  /* misc */
+  .log{ max-height:120px; overflow:auto; width:100%; font-size:0.9rem; color:#ddd; background:#0e0e0e; padding:8px; border-radius:8px; border:1px solid #222; box-sizing:border-box; }
+  .indicators{ display:flex; gap:8px; align-items:center; }
+  .chip{ padding:6px 10px; border-radius:6px; background:#111; border:1px solid #333; }
 </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="outer">
+    <div class="wrap">
 
-  <!-- スロットセル -->
-  <div class="slot-area">
-    <div class="cell" id="cell0"></div>
-    <div class="cell" id="cell1"></div>
-    <div class="cell" id="cell2"></div>
-    <div class="cell" id="cell3"></div>
-    <div class="cell" id="cell4"></div>
-    <div class="cell" id="cell5"></div>
-    <div class="cell" id="cell6"></div>
-    <div class="cell" id="cell7"></div>
-    <div class="cell" id="cell8"></div>
+      <!-- スロット -->
+      <div class="slot-area" id="slotArea">
+        <div class="cell" id="cell0"></div>
+        <div class="cell" id="cell1"></div>
+        <div class="cell" id="cell2"></div>
+        <div class="cell" id="cell3"></div>
+        <div class="cell" id="cell4"></div>
+        <div class="cell" id="cell5"></div>
+        <div class="cell" id="cell6"></div>
+        <div class="cell" id="cell7"></div>
+        <div class="cell" id="cell8"></div>
+      </div>
+
+      <!-- 操作 -->
+      <div class="controls">
+        <label>ベット: <input id="betInput" type="number" min="1" value="1" /></label>
+        <button id="spinBtn">スピン開始</button>
+        <div class="stopBtns">
+          <button onclick="stopReel(0)">左リール停止</button>
+          <button onclick="stopReel(1)">中リール停止</button>
+          <button onclick="stopReel(2)">右リール停止</button>
+        </div>
+
+        <div class="indicators">
+          <div class="chip">Luck: <span id="luckLabel">50</span></div>
+          <div class="chip">倍率: <span id="multLabel">x1.0</span></div>
+          <div class="chip" id="jackChip" style="display:none;background:linear-gradient(90deg,#ffd166,#ff6b6b);">JACKPOT</div>
+          <div class="chip" id="insChip" style="display:none;background:linear-gradient(90deg,#6bc1ff,#2a9d8f);">INSURANCE</div>
+        </div>
+      </div>
+
+      <!-- ステータス -->
+      <div class="status">
+        <div class="box">コイン<br><strong id="coin">100</strong><div class="small">資産</div></div>
+        <div class="box">マナ<br><strong id="mana">0</strong><div class="small">スキル通貨</div></div>
+        <div class="box">ターン<br><strong id="turn">1</strong><div class="small">経過</div></div>
+        <div class="box">コンボ<br><strong id="combo">0</strong><div class="small">連勝</div></div>
+      </div>
+
+      <!-- 手札 -->
+      <div class="hand" id="hand"></div>
+
+      <!-- ログ（簡易） -->
+      <div class="log" id="log"></div>
+    </div>
   </div>
-
-  <button id="spinBtn">スピン</button>
-
-  <!-- ステータス -->
-  <div class="status">
-    <div>コイン: <span id="coin">0</span></div>
-    <div>マナ: <span id="mana">3</span></div>
-  </div>
-
-  <!-- 手札 -->
-  <div class="hand" id="hand"></div>
-
-</div>
 
 <script>
-let coin=0;
-let mana=3;
-let hand=[];
-let deck=[];
-let discard=[];
+/* -----------------------------
+   ゲーム状態
+   -----------------------------*/
+let coin = 100;
+let mana = 0;
+let turn = 1;
+let combo = 0;
+let multiplier = 1;
+let jackpot = false;
+let luck = 50;
+let insuranceActive = false;  // insurance 使用状態（次の1スピンで損失補償）
+let lastBet = 0;              // 直前のベット額（補償に使う）
+let hand = [];
+let deck = [];
+let discard = [];
+let maxHand = 7;
 
-// スロット画像
-const symbols=[
+/* -----------------------------
+   画像リスト（GitHub images/ に配置）
+   slot1~slot9.png, card1~card7.png を想定
+   -----------------------------*/
+const symbols = [
   "images/slot1.png",
   "images/slot2.png",
   "images/slot3.png",
@@ -148,146 +158,401 @@ const symbols=[
   "images/slot6.png",
   "images/slot7.png",
   "images/slot8.png",
-  "images/slot9.png",
+  "images/slot9.png"
 ];
 
-// カード定義
-const cardTypes=[
-  {img:"images/card1.png", type:"reroll", cost:2},
-  {img:"images/card2.png", type:"double", cost:2},
-  {img:"images/card3.png", type:"wild", cost:3},
-  {img:"images/card4.png", type:"insurance", cost:2},
-  {img:"images/card5.png", type:"superspin", cost:3},
-  {img:"images/card6.png", type:"manarecover", cost:1},
-  {img:"images/card7.png", type:"coinplus", cost:1}
+const cardTypesBase = [
+  {img:"images/card1.png", type:"reroll", cost:2, level:1, name:"Reroll"},
+  {img:"images/card2.png", type:"double", cost:2, level:1, name:"Double"},
+  {img:"images/card3.png", type:"wild", cost:3, level:1, name:"Wild"},
+  {img:"images/card4.png", type:"insurance", cost:2, level:1, name:"Insurance"},
+  {img:"images/card5.png", type:"superspin", cost:3, level:1, name:"Superspin"},
+  {img:"images/card6.png", type:"manarecover", cost:1, level:1, name:"Mana+"},
+  {img:"images/card7.png", type:"coinplus", cost:1, level:1, name:"Coin+"}
 ];
 
-// デッキ初期化
+/* -----------------------------
+   初期化系
+   -----------------------------*/
 function initDeck(){
-  deck=[];
+  deck = [];
   for(let i=0;i<3;i++){
-    deck=deck.concat(cardTypes);
+    // ディープコピーでレベル情報がカードごとに独立するようにする
+    deck = deck.concat(cardTypesBase.map(c => ({...c})));
   }
   shuffle(deck);
 }
 
-// シャッフル
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
 }
 
-// カードを引く（最大7枚）
+/* -----------------------------
+   カード（手札）処理
+   -----------------------------*/
 function drawCard(){
-  if(hand.length >= 7) return;
-  if(deck.length===0){
-    deck=discard;
-    discard=[];
+  if(hand.length >= maxHand) return;
+  if(deck.length === 0){
+    deck = discard;
+    discard = [];
     shuffle(deck);
   }
-  if(deck.length>0){
-    const card=deck.pop();
-    hand.push(card);
+  if(deck.length > 0){
+    const c = deck.pop();
+    hand.push(c);
     renderHand();
+    log(`カードを1枚ドロー: ${c.name} (Lv${c.level})`);
   }
 }
 
-// 手札描画
 function renderHand(){
-  const handDiv=document.getElementById("hand");
-  handDiv.innerHTML="";
-  hand.forEach((card,idx)=>{
-    const c=document.createElement("div");
-    c.className="card";
-    const img=document.createElement("img");
-    img.src=card.img;
-    c.appendChild(img);
-    c.onclick=()=>playCard(idx);
-    handDiv.appendChild(c);
+  const root = document.getElementById("hand");
+  root.innerHTML = "";
+  hand.forEach((card, idx) => {
+    const el = document.createElement("div");
+    el.className = "card";
+    const img = document.createElement("img");
+    img.src = card.img;
+    el.appendChild(img);
+    const lv = document.createElement("div");
+    lv.className = "lv";
+    lv.textContent = "Lv"+card.level;
+    el.appendChild(lv);
+    el.onclick = ()=>playCard(idx);
+    root.appendChild(el);
   });
 }
 
-// カード使用
 function playCard(idx){
-  const card=hand[idx];
-  if(mana<card.cost) return;
-  mana-=card.cost;
-  document.getElementById("mana").textContent=mana;
-  discard.push(card);
-  hand.splice(idx,1);
+  // safety: index may change if hand re-rendered
+  if(idx < 0 || idx >= hand.length) return;
+  const card = hand[idx];
+  if(mana < card.cost){
+    log("マナ不足でカード使用不可");
+    return;
+  }
+  mana -= card.cost;
+
+  // remove from hand and push to discard (preserve level)
+  const used = hand.splice(idx,1)[0];
+  discard.push(used);
+
+  // レベルアップ（使用で経験）
+  if(used.level < 3) used.level++;
+
   renderHand();
-  applyEffect(card);
+  log(`カード使用: ${used.name} Lv${used.level} (コスト ${used.cost})`);
+  applyEffect(used);
+  updateStatus();
 }
 
-// 効果処理
+/* -----------------------------
+   カード効果（強化反映済み）
+   -----------------------------*/
+let selectingReel = false; // reroll Lv3 選択待ちフラグ
 function applyEffect(card){
   switch(card.type){
     case "coinplus":
-      coin+=5;
+      if(card.level===1) coin += 5;
+      else if(card.level===2) coin += 10;
+      else coin += 20;
+      log(`coin+ 効果発動 (+${card.level===1?5:card.level===2?10:20})`);
       break;
+
     case "manarecover":
-      mana+=2;
+      if(card.level===1) mana += 2;
+      else if(card.level===2) mana += 4;
+      else mana += 6;
+      log(`mana 回復 (${card.level})`);
       break;
+
     case "double":
-      coin*=2;
+      // 倍率はレベルで変化（画面表示の倍率に影響）
+      if(card.level===1) { coin *= 2; log("Double x2!"); }
+      else if(card.level===2) { coin *= 3; log("Double x3!"); }
+      else { coin *= 5; log("Double x5!"); }
       break;
+
     case "reroll":
-      spin(true);
+      if(card.level===1){ spin(true,1); log("Reroll Lv1: 全リール 1回（カードスピン）"); }
+      else if(card.level===2){ spin(true,2); log("Reroll Lv2: 全リール 2回（カードスピン）"); }
+      else { enableReelSelection(); log("Reroll Lv3: 列を選択して再スピン"); }
       break;
+
     case "superspin":
-      spin(true, 3);
+      spin(true,3); log("Superspin: 3回分スピン（カード）");
       break;
+
     case "wild":
       for(let i=0;i<9;i++){
-        const cell=document.getElementById("cell"+i);
-        const img=document.createElement("img");
-        img.src="images/slot4.png"; // wild用
-        cell.innerHTML="";
+        const cell = document.getElementById("cell"+i);
+        cell.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = symbols[3] || symbols[0]; // slot4 系をワイルドに
         cell.appendChild(img);
       }
+      log("Wild発動: 全セルをワイルドに");
       break;
+
     case "insurance":
-      alert("次のスピンで損失なし！（未実装）");
+      insuranceActive = true;
+      document.getElementById("insChip").style.display = "inline-block";
+      log("Insurance 使用: 次の1スピンの損失を補償します");
       break;
   }
-  document.getElementById("coin").textContent=coin;
-  document.getElementById("mana").textContent=mana;
+  updateStatus();
 }
 
-// スロットスピン
-function spin(isCard=false, times=1){
-  if(!isCard) mana++;
-  document.getElementById("mana").textContent=mana;
-
-  for(let t=0;t<times;t++){
-    for(let i=0;i<9;i++){
-      const cell=document.getElementById("cell"+i);
-      const img=document.createElement("img");
-      img.src=symbols[Math.floor(Math.random()*symbols.length)];
-      cell.innerHTML="";
-      cell.appendChild(img);
+/* -----------------------------
+   reroll Lv3: 列選択処理
+   -----------------------------*/
+function enableReelSelection(){
+  selectingReel = true;
+  for(let r=0;r<3;r++){
+    for(let i=0;i<3;i++){
+      const id = r*3 + i;
+      const cell = document.getElementById("cell"+id);
+      cell.classList.add("selectable");
+      // store handler closure per cell to avoid overwrite issues
+      cell.onclick = (ev) => {
+        // ignore if not selecting
+        if(!selectingReel) return;
+        spinReel(r);
+      };
     }
   }
+  alert("Reroll Lv3: 回したいリール（列）をクリックしてください");
+}
 
-  // 簡易中段揃い判定
-  const mid0=document.getElementById("cell3").firstChild.src;
-  const mid1=document.getElementById("cell4").firstChild.src;
-  const mid2=document.getElementById("cell5").firstChild.src;
-  if(mid0===mid1 && mid1===mid2){
-    coin+=10;
-    document.getElementById("coin").textContent=coin;
-    alert("中段揃い！コイン+10");
+function spinReel(r){
+  if(!selectingReel) return;
+  selectingReel = false;
+  // clear selectable
+  for(let i=0;i<9;i++){
+    const cell = document.getElementById("cell"+i);
+    cell.classList.remove("selectable");
+    cell.onclick = null;
+  }
+  // re-roll only chosen reel (3 cells)
+  for(let i=0;i<3;i++){
+    const id = r*3 + i;
+    const cell = document.getElementById("cell"+id);
+    cell.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = randomSymbolWithLuck();
+    cell.appendChild(img);
+  }
+  log(`Reroll: 列 ${r+1} を再抽選`);
+  // 判定（選択による即時チェック）
+  checkWinAfterSpin();
+}
+
+/* -----------------------------
+   スピン関連（リール停止方式）
+   -----------------------------*/
+let spinIntervals = [null,null,null];
+let spinning = [false,false,false];
+
+function randomSymbolWithLuck(){
+  // シンプルな補正: luck が高いと同じシンボル（symbols[0]）が出やすくなる。
+  // ここは将来シンボル別効果に合わせて細かくできます（惜しいズレなど）。
+  if(Math.random()*100 < Math.min(luck,95)){ // luck% の確率で偏りを出す
+    // 偏りの出し方: 50%は symbols[0]、残りはランダム
+    if(Math.random() < 0.5) return symbols[0];
+    return symbols[Math.floor(Math.random()*symbols.length)];
+  } else {
+    return symbols[Math.floor(Math.random()*symbols.length)];
   }
 }
 
-// 初期化
-initDeck();
-for(let i=0;i<5;i++) drawCard();
+function spin(isCard=false, times=1){
+  // isCard==false の時は通常スピン（コインを払う）
+  const bet = parseInt(document.getElementById("betInput").value) || 1;
+  if(!isCard){
+    if(coin < bet){
+      alert("コインが足りません");
+      return;
+    }
+    coin -= bet;
+    lastBet = bet;
+    log(`ベット ${bet} を消費してスピン開始`);
+  } else {
+    log(`カードスピン（消費なし） x${times}`);
+  }
 
-// スピンボタン
-document.getElementById("spinBtn").onclick=()=>spin();
+  updateStatus();
+  // 開始：全リールを回す
+  for(let r=0;r<3;r++){
+    spinning[r] = true;
+    spinIntervals[r] = setInterval(()=>{
+      for(let i=0;i<3;i++){
+        const id = r*3 + i;
+        const cell = document.getElementById("cell"+id);
+        cell.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = randomSymbolWithLuck();
+        cell.appendChild(img);
+      }
+    }, 80);
+  }
+
+  // luck をターン中に微変動させる（演出）
+  // ただしターン更新は endTurn で行うためここでは視覚変化だけ
+  // timesは未使用で簡易版（複数回はカード効果では別に扱われる）
+  updateLuck(); // スピン開始時にもluck変動を入れる（ターンごとではないが演出的）
+}
+
+/* stopReel はプレイヤーが押す停止ボタン用（列ごと） */
+function stopReel(r){
+  if(!spinning[r]) return;
+  clearInterval(spinIntervals[r]);
+  spinning[r] = false;
+  log(`リール ${r+1} 停止`);
+  // 全リール停止したら判定＆ターン終了処理
+  if(!spinning.some(x=>x)){
+    checkWinAfterSpin();
+    endTurn(); // ターン終了処理（カード+1, mana+1, luck変動, events）
+  }
+}
+
+/* 判定（スピン後） */
+function checkWinAfterSpin(){
+  // 中段の3セル（row=1 : cell3,4,5）を判定
+  const mid0 = document.getElementById("cell3").firstChild?.src || "";
+  const mid1 = document.getElementById("cell4").firstChild?.src || "";
+  const mid2 = document.getElementById("cell5").firstChild?.src || "";
+
+  if(mid0 && mid0===mid1 && mid1===mid2){
+    // 当たり
+    combo++;
+    multiplier = Math.min(1 + combo*0.5, 5);
+    let bet = lastBet || (parseInt(document.getElementById("betInput").value) || 1);
+    let reward;
+    if(jackpot){
+      reward = bet * 50;
+      jackpot = false;
+      document.getElementById("jackChip").style.display = "none";
+      log("JACKPOT が発動！ 大当たり！");
+    } else {
+      reward = Math.floor(bet * 5 * multiplier);
+    }
+    coin += reward;
+    log(`中段揃い！ +${reward} コイン (倍率 x${multiplier.toFixed(2)})`);
+    alert(`中段揃い！ +${reward} コイン (倍率 x${multiplier.toFixed(2)})`);
+  }else{
+    // 外れ
+    // insurance があればベットを返却（損失なし）
+    if(insuranceActive && lastBet > 0){
+      coin += lastBet;
+      log(`Insurance によりベット ${lastBet} を補償`);
+      alert(`保険が適用されました。ベット ${lastBet} を返却`);
+      insuranceActive = false;
+      document.getElementById("insChip").style.display = "none";
+    } else {
+      log("外れ");
+    }
+    combo = 0;
+    multiplier = 1;
+  }
+  // スピン後は lastBet をクリア（保険は上で解除済み）
+  lastBet = 0;
+  updateStatus();
+}
+
+/* -----------------------------
+   ターン終了処理：カード+1, マナ+1, Luck変動, イベント判定
+   -----------------------------*/
+function endTurn(){
+  // 1ターン経過（スピン1回をターンとする）
+  mana++;
+  drawCard();
+  turn++;
+  // Luck はターンごとに乱数で変動（前回値 ±20）
+  updateLuck();
+
+  // 5ターンごとにイベント
+  if(turn % 5 === 0){
+    triggerEvent();
+  }
+
+  updateStatus();
+}
+
+/* Luck 更新（ターンごとに呼ぶ） */
+function updateLuck(){
+  const delta = Math.floor(Math.random()*41) - 20; // -20 .. +20
+  luck = Math.max(0, Math.min(100, luck + delta));
+  document.getElementById("luckLabel").textContent = luck;
+  // 更新に伴いセル枠色を反映
+  updateLuckFrame();
+}
+
+/* セルの枠色をLuckに応じて変更 */
+function updateLuckFrame(){
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach(c=>{
+    c.classList.remove("lowLuck","midLuck","highLuck");
+    if(luck < 35) c.classList.add("lowLuck");
+    else if(luck > 65) c.classList.add("highLuck");
+    else c.classList.add("midLuck");
+  });
+  document.getElementById("luckLabel").textContent = luck;
+}
+
+/* -----------------------------
+   イベント（5ターンごと）
+   -----------------------------*/
+function triggerEvent(){
+  const ev = Math.floor(Math.random()*3);
+  if(ev===0){
+    luck = Math.min(100, luck + 30);
+    log("イベント: スーパーチャンス！（Luck +30）");
+    alert("🔥 スーパーチャンス！ Luck上昇 🔥");
+  } else if(ev===1){
+    luck = Math.max(0, luck - 30);
+    log("イベント: 冷却タイム（Luck -30）");
+    alert("❄ 冷却タイム… Luck低下 ❄");
+  } else {
+    jackpot = true;
+    document.getElementById("jackChip").style.display = "inline-block";
+    log("イベント: ジャックポットチャンス発生！");
+    alert("💰 ジャックポットチャンス！ 次の当たりは大当たり 💰");
+  }
+  updateLuckFrame();
+}
+
+/* -----------------------------
+   ヘルパー、UI 更新、ログ
+   -----------------------------*/
+function updateStatus(){
+  document.getElementById("coin").textContent = coin;
+  document.getElementById("mana").textContent = mana;
+  document.getElementById("turn").textContent = turn;
+  document.getElementById("combo").textContent = combo;
+  document.getElementById("multLabel").textContent = "x" + multiplier.toFixed(2);
+  document.getElementById("luckLabel").textContent = luck;
+  document.getElementById("insChip").style.display = insuranceActive ? "inline-block" : "none";
+  document.getElementById("jackChip").style.display = jackpot ? "inline-block" : "none";
+}
+
+function log(text){
+  const el = document.getElementById("log");
+  const t = new Date().toLocaleTimeString();
+  el.innerHTML = `<div>[${t}] ${text}</div>` + el.innerHTML;
+}
+
+/* -----------------------------
+   初期化・バインド
+   -----------------------------*/
+initDeck();
+drawCard();            // 初期カード1枚
+updateLuckFrame();
+updateStatus();
+
+document.getElementById("spinBtn").onclick = ()=> spin(false);
 </script>
 </body>
 </html>
