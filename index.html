@@ -53,7 +53,7 @@ body{
 .status{
   display:flex;
   gap:20px;
-  font-size:1.08rem; /* 90% */
+  font-size:1.08rem;
   justify-content:center;
   align-items:center;
   width:100%;
@@ -74,7 +74,7 @@ body{
 }
 .card{
   aspect-ratio:5/8;
-  width:72px; /* 90% */
+  width:72px;
   background:#333;
   border:2px solid #666;
   border-radius:6px;
@@ -92,8 +92,8 @@ body{
 /* スピンボタン */
 #spinBtn{
   margin:12px;
-  padding:7px 14px; /* 90% */
-  font-size:1.08rem; /* 90% */
+  padding:7px 14px;
+  font-size:1.08rem;
   cursor:pointer;
   border:none;
   border-radius:6px;
@@ -118,7 +118,7 @@ body{
     <div class="cell" id="cell8"></div>
   </div>
 
-  <button id="spinBtn">スピン (1マナ)</button>
+  <button id="spinBtn">スピン</button>
 
   <!-- ステータス -->
   <div class="status">
@@ -139,7 +139,7 @@ let deck=[];
 let discard=[];
 
 // スロット画像（GitHubで管理）
-const slots=[
+const symbols=[
   "images/slot1.png",
   "images/slot2.png",
   "images/slot3.png",
@@ -151,7 +151,6 @@ const slots=[
   "images/slot9.png",
 
 ];
-  
 
 // カード定義
 const cardTypes=[
@@ -245,7 +244,7 @@ function applyEffect(card){
       for(let i=0;i<9;i++){
         const cell=document.getElementById("cell"+i);
         const img=document.createElement("img");
-        img.src="images/slot4.png"; // wild用の固定画像
+        img.src="images/symbol4.png"; // wild用
         cell.innerHTML="";
         cell.appendChild(img);
       }
@@ -258,17 +257,16 @@ function applyEffect(card){
   document.getElementById("mana").textContent=mana;
 }
 
-// スロットスピン
+// スロットスピン（マナ消費なし、スピンでマナ+1）
 function spin(isCard=false, times=1){
-  if(!isCard && mana<1) return;
-  if(!isCard) mana--;
+  if(!isCard) mana++;
   document.getElementById("mana").textContent=mana;
 
   for(let t=0;t<times;t++){
     for(let i=0;i<9;i++){
       const cell=document.getElementById("cell"+i);
       const img=document.createElement("img");
-      img.src=slots[Math.floor(Math.random()*slots.length)];
+      img.src=symbols[Math.floor(Math.random()*symbols.length)];
       cell.innerHTML="";
       cell.appendChild(img);
     }
