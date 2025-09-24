@@ -1,162 +1,3 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>カードスロットゲーム</title>
-<style>
-body{
-  margin:0;
-  padding:0;
-  background:#222;
-  color:#fff;
-  font-family:sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-}
-.wrap{
-  transform: scale(0.8);
-  transform-origin: top center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  max-width:900px;
-  width:100%;
-}
-
-/* スロットエリア */
-.slot-area{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:6px;
-  width:100%;
-  max-width:700px;
-}
-.cell{
-  aspect-ratio:8/5;
-  border:2px solid #444;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#111;
-  position:relative;
-}
-.cell img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-.luck-frame{
-  position:absolute;
-  inset:0;
-  border-radius:6px;
-  border:3px solid transparent;
-  pointer-events:none;
-}
-
-/* リール停止ボタン */
-.reel-controls{
-  display:flex;
-  justify-content:space-around;
-  width:100%;
-  margin-top:4px;
-}
-.reel-controls button{
-  padding:4px 8px;
-  border:none;
-  border-radius:6px;
-  background:#0a0;
-  color:#fff;
-  cursor:pointer;
-}
-
-/* ステータス */
-.status{
-  display:flex;
-  gap:20px;
-  font-size:1rem;
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  border-top:2px solid #0f0;
-  padding-top:6px;
-}
-
-/* 手札 */
-.hand{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  flex-wrap:wrap;
-  width:100%;
-  border:2px solid #c33;
-  padding:6px;
-  border-radius:8px;
-}
-.card{
-  aspect-ratio:5/8;
-  width:64px;
-  background:#333;
-  border:2px solid #666;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  position:relative;
-}
-.card img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <!-- スロットセル -->
-  <div class="slot-area">
-    <div class="cell" id="cell0"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell1"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell2"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell3"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell4"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell5"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell6"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell7"><div class="luck-frame"></div></div>
-    <div class="cell" id="cell8"><div class="luck-frame"></div></div>
-  </div>
-
-  <!-- 縦リール停止ボタン -->
-  <div class="reel-controls">
-    <button onclick="stopReel(0)">リール1停止</button>
-    <button onclick="stopReel(1)">リール2停止</button>
-    <button onclick="stopReel(2)">リール3停止</button>
-  </div>
-
-  <div class="controls">
-    ベット: <input type="number" id="betInput" value="1" min="1">
-    <button id="spinBtn">スピン</button>
-  </div>
-
-  <!-- ステータス -->
-  <div class="status">
-    <div>ターン: <span id="turn">1</span></div>
-    <div>コイン: <span id="coin">100</span></div>
-    <div>マナ: <span id="mana">0</span></div>
-  </div>
-
-  <!-- 手札 -->
-  <div class="hand" id="hand"></div>
-
-</div>
-
 <script>
 let coin=100;
 let mana=0;
@@ -164,21 +5,15 @@ let turn=1;
 let hand=[];
 let deck=[];
 let discard=[];
+let spinInterval=null; // ← グローバル変数で管理
+let spinning=false;
 
-// スロット画像
 const symbols=[
-  "images/slot1.png",
-  "images/slot2.png",
-  "images/slot3.png",
-  "images/slot4.png",
-  "images/slot5.png",
-  "images/slot6.png",
-  "images/slot7.png",
-  "images/slot8.png",
-  "images/slot9.png"
+  "images/slot1.png","images/slot2.png","images/slot3.png",
+  "images/slot4.png","images/slot5.png","images/slot6.png",
+  "images/slot7.png","images/slot8.png","images/slot9.png"
 ];
 
-// カード定義
 const cardTypes=[
   {img:"images/card1.png", type:"reroll", cost:2},
   {img:"images/card2.png", type:"double", cost:2},
@@ -189,43 +24,30 @@ const cardTypes=[
   {img:"images/card7.png", type:"coinplus", cost:1}
 ];
 
-// デッキ初期化
 function initDeck(){
   deck=[];
-  for(let i=0;i<2;i++){ // 少なめ
-    deck=deck.concat(cardTypes);
-  }
+  for(let i=0;i<2;i++){ deck=deck.concat(cardTypes); }
   shuffle(deck);
 }
-
-// シャッフル
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
 }
-
-// カードを引く
 function drawCard(){
   if(hand.length>=7) return;
-  if(deck.length===0){
-    deck=discard;
-    discard=[];
-    shuffle(deck);
-  }
+  if(deck.length===0){ deck=discard; discard=[]; shuffle(deck); }
   if(deck.length>0){
     const card=deck.pop();
     hand.push(card);
     renderHand();
   }
 }
-
-// 手札描画
 function renderHand(){
   const handDiv=document.getElementById("hand");
   handDiv.innerHTML="";
-  hand.forEach((card,idx)=>{
+  hand.forEach(card=>{
     const c=document.createElement("div");
     c.className="card";
     const img=document.createElement("img");
@@ -234,8 +56,6 @@ function renderHand(){
     handDiv.appendChild(c);
   });
 }
-
-// スロット描画
 function drawSlots(){
   for(let i=0;i<9;i++){
     const cell=document.getElementById("cell"+i);
@@ -246,9 +66,35 @@ function drawSlots(){
   }
 }
 
-// スピン
+// スピン開始
 function spin(){
+  if(spinning) return; // 二重起動防止
+  const bet=parseInt(document.getElementById("betInput").value)||1;
+  if(coin<bet){ alert("コイン不足"); return; }
+  coin-=bet;
+  document.getElementById("coin").textContent=coin;
+
+  let t=0;
+  spinning=true;
+  spinInterval=setInterval(()=>{
+    drawSlots();
+    t++;
+    if(t>50){ // 自動で止まる保険
+      stopSpin();
+    }
+  },80);
+}
+
+// スピン停止（強制）
+function stopSpin(){
+  if(!spinning) return;
+  clearInterval(spinInterval);
+  spinInterval=null;
+  spinning=false;
+
+  // 最終確定描画
   drawSlots();
+
   turn++;
   mana++;
   drawCard();
@@ -256,8 +102,9 @@ function spin(){
   document.getElementById("mana").textContent=mana;
 }
 
-// リール停止（縦列）
+// リール停止（縦列だけ）
 function stopReel(col){
+  if(!spinning) return;
   for(let row=0;row<3;row++){
     const idx=row*3+col;
     const cell=document.getElementById("cell"+idx);
@@ -272,8 +119,5 @@ function stopReel(col){
 initDeck();
 drawSlots();
 drawCard();
-
 document.getElementById("spinBtn").onclick=()=>spin();
 </script>
-</body>
-</html>
