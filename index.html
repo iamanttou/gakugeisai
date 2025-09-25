@@ -17,7 +17,7 @@ body{
   min-height:100vh;
 }
 .wrap{
-  transform: scale(0.9);
+  transform: scale(0.8); /* ← 縮小してPC画面に収めやすく */
   transform-origin: top center;
   display:flex;
   flex-direction:column;
@@ -26,6 +26,7 @@ body{
   padding:12px;
   width:900px;
   max-width:100%;
+  box-sizing:border-box;
 }
 
 /* スロットエリア */
@@ -314,9 +315,10 @@ function stopReel(r){
   spinIntervals[r]=null;
   spinning[r]=false;
   document.getElementById("stop"+r).disabled=true;
-  // 全部止まったら判定
+  // 全部止まったら判定＆ターン処理
   if(!spinning[0] && !spinning[1] && !spinning[2]){
     checkWin();
+    endTurn();
   }
 }
 
@@ -331,6 +333,13 @@ function checkWin(){
     document.getElementById("coin").textContent=coin;
     alert("中段揃い！ +" + (bet*5) + " コイン");
   }
+}
+
+// ターン終了時処理（マナ+1、カード+1）
+function endTurn(){
+  mana++;
+  document.getElementById("mana").textContent=mana;
+  drawCard();
 }
 
 // 初期化
