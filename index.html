@@ -307,6 +307,7 @@ function spin(){
     },100);
   }
 }
+document.getElementById("spinBtn").disabled = true;
 
 // リール停止
 function stopReel(r){
@@ -341,6 +342,7 @@ function endTurn(){
   document.getElementById("mana").textContent=mana;
   drawCard();
 }
+document.getElementById("spinBtn").disabled = false;
 
 // 初期化
 initDeck();
