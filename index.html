@@ -2,404 +2,324 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1to9 slot</title>
+<title>スロット＋クリッカー</title>
 <style>
-body{
-  margin:0;
-  padding:0;
-  background:#222;
-  color:#fff;
-  font-family:sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-}
-.wrap{
-  transform: scale(0.8);
-  transform-origin: top center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-  padding:12px;
-  width:900px;
-  max-width:100%;
-  box-sizing:border-box;
-}
-
-/* スロットエリア */
-.slot-area{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:6px;
-  width:100%;
-}
-.cell{
-  aspect-ratio:8/5;
-  border:2px solid #444;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#111;
-  overflow:hidden;
-}
-.cell img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-/* ステータス */
-.status{
-  display:flex;
-  gap:20px;
-  font-size:1.08rem;
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  border-top:3px solid #0f0;
-  padding-top:8px;
-}
-
-/* 手札 */
-.hand{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  flex-wrap:wrap;
-  width:100%;
-  border:3px solid #c33;
-  padding:8px;
-  border-radius:8px;
-}
-.card{
-  aspect-ratio:5/8;
-  width:72px;
-  background:#333;
-  border:2px solid #666;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.card img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-/* スピンボタン */
-#spinBtn{
-  margin:12px;
-  padding:10px 22px;
-  font-size:1.2rem;
-  cursor:pointer;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(145deg,#0a0,#0d0);
-  color:#fff;
-  font-weight:bold;
-  box-shadow:0 4px 8px rgba(0,0,0,0.6);
-  transition:transform 0.1s;
-}
-#spinBtn:active{ transform:scale(0.95); }
-#spinBtn:disabled{ opacity:0.6; cursor:not-allowed; }
-
-/* ベッド数設定 */
-#betInput{
-  width:60px;
-  padding:4px;
-  font-size:1rem;
-  text-align:center;
-}
-#quickBet10{
-  margin-left:8px;
-  padding:4px 10px;
-  font-size:0.9rem;
-  cursor:pointer;
-  border:none;
-  border-radius:6px;
-  background:#08f;
-  color:#fff;
-}
-
-/* 停止ボタン */
-.stop-buttons{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin:10px;
-}
-.stopBtn{
-  padding:6px 12px;
-  font-size:0.9rem;
-  border:none;
-  border-radius:6px;
-  background:#c33;
-  color:#fff;
-  cursor:pointer;
-}
-.stopBtn:disabled{ background:#555; cursor:not-allowed; }
+  body{
+    margin:0;
+    background:#111;
+    color:#fff;
+    font-family:sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .main{
+    display:flex;
+    width:100%;
+    height:80vh;
+  }
+  .left,.right{
+    width:50%;
+    padding:10px;
+    box-sizing:border-box;
+  }
+  .wrap{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:5px;
+    width:100%;
+    aspect-ratio:8/5;
+    background:#222;
+    margin-bottom:10px;
+  }
+  .cell{
+    background:#333;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .cell img{
+    max-width:100%;
+    max-height:100%;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:10px 0;
+  }
+  .controls button{
+    padding:8px 16px;
+    font-size:1rem;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#0af;
+    color:#fff;
+  }
+  .hand{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+  }
+  .card{
+    width:70px;
+    aspect-ratio:5/8;
+    background:#444;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px;
+    font-size:0.8rem;
+  }
+  .status{
+    margin-top:10px;
+    text-align:center;
+  }
+  .right{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  #clickImg{
+    width:150px;
+    cursor:pointer;
+  }
+  .upgrade{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+  }
+  .upgrade button{
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    background:#fa0;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <!-- スロットセル -->
-  <div class="slot-area">
-    <div class="cell" id="cell0"></div>
-    <div class="cell" id="cell1"></div>
-    <div class="cell" id="cell2"></div>
-    <div class="cell" id="cell3"></div>
-    <div class="cell" id="cell4"></div>
-    <div class="cell" id="cell5"></div>
-    <div class="cell" id="cell6"></div>
-    <div class="cell" id="cell7"></div>
-    <div class="cell" id="cell8"></div>
+<div class="main">
+  <!-- スロット左 -->
+  <div class="left">
+    <div class="wrap" id="slot"></div>
+    <div class="controls">
+      <button id="spinBtn">スピン</button>
+      <button id="stopCol1">列1停止</button>
+      <button id="stopCol2">列2停止</button>
+      <button id="stopCol3">列3停止</button>
+      <input type="number" id="betInput" value="1" min="1" style="width:60px;">
+      <button id="bet10">10ベット</button>
+    </div>
+    <div class="hand" id="hand"></div>
   </div>
 
-  <!-- 停止ボタン -->
-  <div class="stop-buttons">
-    <button class="stopBtn" id="stop0" disabled>左リール停止</button>
-    <button class="stopBtn" id="stop1" disabled>中リール停止</button>
-    <button class="stopBtn" id="stop2" disabled>右リール停止</button>
+  <!-- クリッカー右 -->
+  <div class="right">
+    <h2>クリッカー</h2>
+    <img src="images/click1.png" id="clickImg">
+    <div class="upgrade">
+      <button onclick="upgradeClick()">クリック強化(-3マナ)</button>
+      <button onclick="upgradeAuto()">自動強化(-5マナ)</button>
+    </div>
+    <p id="clickStatus">クリック+1 / 自動+0</p>
   </div>
+</div>
 
-  <!-- スピンとベッド -->
-  <div>
-    <input type="number" id="betInput" min="1" value="1"> ベッド
-    <button id="quickBet10">10に設定</button>
-    <button id="spinBtn">スピン</button>
-  </div>
-
-  <!-- ステータス -->
-  <div class="status">
-    <div>コイン: <span id="coin">100</span></div>
-    <div>マナ: <span id="mana">0</span></div>
-  </div>
-
-  <!-- 手札 -->
-  <div class="hand" id="hand"></div>
-
+<!-- 共通ステータス -->
+<div class="status">
+  コイン: <span id="coin">100</span> | 
+  マナ: <span id="mana">0</span>
 </div>
 
 <script>
+// ====== 共通リソース ======
 let coin=100;
 let mana=0;
-let hand=[];
-let deck=[];
-let discard=[];
-let spinning=[false,false,false];
-let spinIntervals=[null,null,null];
-let insuranceActive=false;
+let bet=1;
+let turn=0;
+let isSpinning=false;
 
-// スロット画像
-const symbols=[
-  "images/slot1.png","images/slot2.png","images/slot3.png",
-  "images/slot4.png","images/slot5.png","images/slot6.png",
-  "images/slot7.png","images/slot8.png","images/slot9.png",
-];
+// ====== スロット関連 ======
+const slot=document.getElementById("slot");
+const rows=3, cols=3;
+let reels=[[],[],[]];
+const images=[...Array(9)].map((_,i)=>`images/slot${i+1}.png`);
 
-// カード定義
-const cardTypes=[
-  {img:"images/card1.png", type:"reroll", cost:2},
-  {img:"images/card2.png", type:"double", cost:2},
-  {img:"images/card3.png", type:"draw", cost:1},
-  {img:"images/card4.png", type:"insurance", cost:2},
-  {img:"images/card5.png", type:"superspin", cost:3},
-  {img:"images/card6.png", type:"manarecover", cost:1},
-  {img:"images/card7.png", type:"coinplus", cost:1}
-];
-
-function initDeck(){
-  deck=[];
-  for(let i=0;i<3;i++){ deck=deck.concat(cardTypes); }
-  shuffle(deck);
-}
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-}
-function drawCard(){
-  if(hand.length >= 7) return;
-  if(deck.length===0){ deck=discard; discard=[]; shuffle(deck); }
-  if(deck.length>0){
-    const card=deck.pop();
-    hand.push(card);
-    renderHand();
-  }
-}
-function renderHand(){
-  const handDiv=document.getElementById("hand");
-  handDiv.innerHTML="";
-  hand.forEach((card,idx)=>{
-    const c=document.createElement("div");
-    c.className="card";
+for(let r=0;r<rows;r++){
+  for(let c=0;c<cols;c++){
+    const div=document.createElement("div");
+    div.className="cell";
     const img=document.createElement("img");
-    img.src=card.img;
-    c.appendChild(img);
-    c.onclick=()=>playCard(idx);
-    handDiv.appendChild(c);
-  });
-}
-function playCard(idx){
-  const card=hand[idx];
-  if(mana<card.cost) return;
-  mana-=card.cost;
-  document.getElementById("mana").textContent=mana;
-  discard.push(card);
-  hand.splice(idx,1);
-  renderHand();
-  applyEffect(card);
-}
-function applyEffect(card){
-  switch(card.type){
-    case "coinplus": coin+=5; break;
-    case "manarecover": mana+=2; break;
-    case "double": coin*=2; break;
-    case "draw": drawCard(); break;
-    case "insurance": insuranceActive=true; alert("保険をかけた！次のスピンで外れたらベッド返却"); break;
-    case "reroll": showRerollOptions(); break;
+    img.src=images[Math.floor(Math.random()*images.length)];
+    div.appendChild(img);
+    slot.appendChild(div);
+    reels[c].push(img);
   }
-  document.getElementById("coin").textContent=coin;
-  document.getElementById("mana").textContent=mana;
-}
-
-// リロールUI表示
-function showRerollOptions(){
-  const wrap=document.querySelector(".wrap");
-  const ui=document.createElement("div");
-  ui.id="reroll-ui";
-  ui.style.margin="10px";
-  ui.style.display="flex";
-  ui.style.gap="10px";
-  ui.style.justifyContent="center";
-  
-  ["左","中","右"].forEach((label,idx)=>{
-    const btn=document.createElement("button");
-    btn.textContent=label+"リール再スピン";
-    btn.style.padding="6px 12px";
-    btn.style.border="none";
-    btn.style.borderRadius="6px";
-    btn.style.cursor="pointer";
-    btn.style.background="#08f";
-    btn.style.color="#fff";
-    btn.onclick=()=>{
-      spinReel(idx);
-      ui.remove();
-    };
-    ui.appendChild(btn);
-  });
-  wrap.appendChild(ui);
-}
-
-// リール単独スピン
-function spinReel(r){
-  let cells=[document.getElementById("cell"+r),
-             document.getElementById("cell"+(r+3)),
-             document.getElementById("cell"+(r+6))];
-  cells.forEach(cell=>{
-    const img=document.createElement("img");
-    img.src=symbols[Math.floor(Math.random()*symbols.length)];
-    cell.innerHTML="";
-    cell.appendChild(img);
-  });
 }
 
 function spin(){
-  const bet=parseInt(document.getElementById("betInput").value)||1;
-  if(coin<bet){ alert("コイン不足！"); return; }
+  if(isSpinning) return;
+  if(coin<bet) return;
   coin-=bet;
   document.getElementById("coin").textContent=coin;
-  document.getElementById("spinBtn").disabled = true;
-
-  for(let r=0;r<3;r++){
-    spinning[r]=true;
-    document.getElementById("stop"+r).disabled=false;
-    let cells=[document.getElementById("cell"+r),document.getElementById("cell"+(r+3)),document.getElementById("cell"+(r+6))];
-    spinIntervals[r]=setInterval(()=>{
-      cells.forEach(cell=>{
-        const img=document.createElement("img");
-        img.src=symbols[Math.floor(Math.random()*symbols.length)];
-        cell.innerHTML="";
-        cell.appendChild(img);
-      });
+  isSpinning=true;
+  spinIntervals=[];
+  for(let c=0;c<cols;c++){
+    spinIntervals[c]=setInterval(()=>{
+      for(let r=0;r<rows;r++){
+        reels[c][r].src=images[Math.floor(Math.random()*images.length)];
+      }
     },100);
   }
 }
 
-function stopReel(r){
-  if(!spinning[r]) return;
-  clearInterval(spinIntervals[r]);
-  spinIntervals[r]=null;
-  spinning[r]=false;
-  document.getElementById("stop"+r).disabled=true;
-  if(!spinning[0] && !spinning[1] && !spinning[2]){
+function stopCol(c){
+  if(!isSpinning) return;
+  clearInterval(spinIntervals[c]);
+  spinIntervals[c]=null;
+  if(spinIntervals.every(x=>x===null)){
+    isSpinning=false;
     checkWin();
     endTurn();
   }
 }
 
-// 揃い判定（横＋縦＋斜め）
 function checkWin(){
-  const bet=parseInt(document.getElementById("betInput").value)||1;
-  let win=false;
-
+  let reward=0;
+  let lines=[];
   // 横
-  for(let row=0;row<3;row++){
-    const a=document.getElementById("cell"+(row*3)).firstChild.src;
-    const b=document.getElementById("cell"+(row*3+1)).firstChild.src;
-    const c=document.getElementById("cell"+(row*3+2)).firstChild.src;
-    if(a===b && b===c){ coin+=bet*5; win=true; alert("横揃い！ +" + (bet*5) + " コイン"); }
+  for(let r=0;r<rows;r++){
+    if(reels[0][r].src===reels[1][r].src && reels[1][r].src===reels[2][r].src){
+      reward+=bet*5;
+      lines.push("横");
+    }
   }
   // 縦
-  for(let col=0;col<3;col++){
-    const a=document.getElementById("cell"+col).firstChild.src;
-    const b=document.getElementById("cell"+(col+3)).firstChild.src;
-    const c=document.getElementById("cell"+(col+6)).firstChild.src;
-    if(a===b && b===c){ coin+=bet*5; win=true; alert("縦揃い！ +" + (bet*5) + " コイン"); }
+  for(let c=0;c<cols;c++){
+    if(reels[c][0].src===reels[c][1].src && reels[c][1].src===reels[c][2].src){
+      reward+=bet*5;
+      lines.push("縦");
+    }
   }
   // 斜め
-  const d1=[document.getElementById("cell0").firstChild.src,
-            document.getElementById("cell4").firstChild.src,
-            document.getElementById("cell8").firstChild.src];
-  const d2=[document.getElementById("cell2").firstChild.src,
-            document.getElementById("cell4").firstChild.src,
-            document.getElementById("cell6").firstChild.src];
-  if(d1[0]===d1[1] && d1[1]===d1[2]){ coin+=bet*5; win=true; alert("斜め揃い！ +" + (bet*5) + " コイン"); }
-  if(d2[0]===d2[1] && d2[1]===d2[2]){ coin+=bet*5; win=true; alert("斜め揃い！ +" + (bet*5) + " コイン"); }
-
-  if(!win && insuranceActive){
+  if(reels[0][0].src===reels[1][1].src && reels[1][1].src===reels[2][2].src){
+    reward+=bet*5;
+    lines.push("斜め");
+  }
+  if(reels[0][2].src===reels[1][1].src && reels[1][1].src===reels[2][0].src){
+    reward+=bet*5;
+    lines.push("斜め");
+  }
+  // ダブル効果
+  if(doubleActive){
+    reward*=2;
+    doubleActive=false;
+  }
+  // 保険効果
+  if(reward===0 && insuranceActive){
     coin+=bet;
     insuranceActive=false;
-    alert("ハズレ…でも保険でベッド返却！");
+  }else{
+    coin+=reward;
   }
-
   document.getElementById("coin").textContent=coin;
 }
 
-function endTurn(){
-  mana++;
-  document.getElementById("mana").textContent=mana;
-  drawCard();
-  document.getElementById("spinBtn").disabled = false;
+// ====== カード関連 ======
+let hand=[];
+let doubleActive=false;
+let insuranceActive=false;
+
+function addCard(type){ hand.push(type); renderHand(); }
+function renderHand(){
+  const h=document.getElementById("hand");
+  h.innerHTML="";
+  hand.forEach((card,i)=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.textContent=card;
+    div.onclick=()=>useCard(i);
+    h.appendChild(div);
+  });
+}
+function useCard(i){
+  const card=hand[i];
+  if(card==="coinplus" && mana>=1){ coin+=5; mana--; }
+  if(card==="manarecover" && mana>=1){ mana--; mana+=2; }
+  if(card==="double" && mana>=2){ mana-=2; doubleActive=true; }
+  if(card==="draw" && mana>=1){ mana--; addCard(randomCard()); }
+  if(card==="reroll" && mana>=2){ mana-=2; /* 未実装: reroll */ }
+  if(card==="insurance" && mana>=2){ mana-=2; insuranceActive=true; }
+  if(card==="superspin" && mana>=3){ mana-=3; spin(); setTimeout(spin,600); setTimeout(spin,1200); }
+  hand.splice(i,1);
+  renderHand();
+  updateStatus();
+}
+function randomCard(){
+  const list=["coinplus","manarecover","double","draw","reroll","insurance","superspin"];
+  return list[Math.floor(Math.random()*list.length)];
 }
 
-// 初期化
-initDeck();
-drawCard();
+function endTurn(){
+  turn++;
+  mana++;
+  if(hand.length<7) addCard(randomCard());
+  updateStatus();
+}
 
-document.getElementById("spinBtn").onclick=()=>spin();
-document.getElementById("stop0").onclick=()=>stopReel(0);
-document.getElementById("stop1").onclick=()=>stopReel(1);
-document.getElementById("stop2").onclick=()=>stopReel(2);
-document.getElementById("quickBet10").onclick=()=>{ document.getElementById("betInput").value=10; };
+// ====== クリッカー関連 ======
+let clickPower=1;
+let autoPower=0;
+
+const clickImg=document.getElementById("clickImg");
+clickImg.onclick=()=>{
+  coin+=clickPower;
+  document.getElementById("coin").textContent=coin;
+};
+
+setInterval(()=>{
+  coin+=autoPower;
+  document.getElementById("coin").textContent=coin;
+},1000);
+
+function upgradeClick(){
+  if(mana>=3){
+    mana-=3;
+    clickPower++;
+    updateStatus();
+  }
+}
+function upgradeAuto(){
+  if(mana>=5){
+    mana-=5;
+    autoPower++;
+    updateStatus();
+  }
+}
+
+function updateStatus(){
+  document.getElementById("coin").textContent=coin;
+  document.getElementById("mana").textContent=mana;
+  document.getElementById("clickStatus").textContent=`クリック+${clickPower} / 自動+${autoPower}`;
+}
+
+// ====== イベント ======
+document.getElementById("spinBtn").onclick=spin;
+document.getElementById("stopCol1").onclick=()=>stopCol(0);
+document.getElementById("stopCol2").onclick=()=>stopCol(1);
+document.getElementById("stopCol3").onclick=()=>stopCol(2);
+document.getElementById("betInput").onchange=(e)=>{ bet=parseInt(e.target.value); };
+document.getElementById("bet10").onclick=()=>{ bet=10; document.getElementById("betInput").value=10; };
+
+// 初期カード
+addCard(randomCard());
+updateStatus();
 </script>
 </body>
 </html>
