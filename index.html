@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1to9 slot</title>
+<title>カードスロットゲーム</title>
 <style>
 body{
   margin:0;
@@ -195,6 +195,7 @@ let deck=[];
 let discard=[];
 let spinning=[false,false,false];
 let spinIntervals=[null,null,null];
+let insuranceActive=false;
 
 // スロット画像
 const symbols=[
@@ -203,11 +204,11 @@ const symbols=[
   "images/slot7.png","images/slot8.png","images/slot9.png",
 ];
 
-// カード定義（ワイルドをドローに差し替え）
+// カード定義
 const cardTypes=[
   {img:"images/card1.png", type:"reroll", cost:2},
   {img:"images/card2.png", type:"double", cost:2},
-  {img:"images/card3.png", type:"draw", cost:1}, // ← ドロー
+  {img:"images/card3.png", type:"draw", cost:1},
   {img:"images/card4.png", type:"insurance", cost:2},
   {img:"images/card5.png", type:"superspin", cost:3},
   {img:"images/card6.png", type:"manarecover", cost:1},
@@ -262,10 +263,53 @@ function applyEffect(card){
     case "coinplus": coin+=5; break;
     case "manarecover": mana+=2; break;
     case "double": coin*=2; break;
-    case "draw": drawCard(); break; // ← ドロー効果
+    case "draw": drawCard(); break;
+    case "insurance": insuranceActive=true; alert("保険をかけた！次のスピンで外れたらベッド返却"); break;
+    case "reroll": showRerollOptions(); break;
   }
   document.getElementById("coin").textContent=coin;
   document.getElementById("mana").textContent=mana;
+}
+
+// リロールUI表示
+function showRerollOptions(){
+  const wrap=document.querySelector(".wrap");
+  const ui=document.createElement("div");
+  ui.id="reroll-ui";
+  ui.style.margin="10px";
+  ui.style.display="flex";
+  ui.style.gap="10px";
+  ui.style.justifyContent="center";
+  
+  ["左","中","右"].forEach((label,idx)=>{
+    const btn=document.createElement("button");
+    btn.textContent=label+"リール再スピン";
+    btn.style.padding="6px 12px";
+    btn.style.border="none";
+    btn.style.borderRadius="6px";
+    btn.style.cursor="pointer";
+    btn.style.background="#08f";
+    btn.style.color="#fff";
+    btn.onclick=()=>{
+      spinReel(idx);
+      ui.remove();
+    };
+    ui.appendChild(btn);
+  });
+  wrap.appendChild(ui);
+}
+
+// リール単独スピン
+function spinReel(r){
+  let cells=[document.getElementById("cell"+r),
+             document.getElementById("cell"+(r+3)),
+             document.getElementById("cell"+(r+6))];
+  cells.forEach(cell=>{
+    const img=document.createElement("img");
+    img.src=symbols[Math.floor(Math.random()*symbols.length)];
+    cell.innerHTML="";
+    cell.appendChild(img);
+  });
 }
 
 function spin(){
@@ -302,35 +346,42 @@ function stopReel(r){
   }
 }
 
-// 揃い判定（横＋斜め）
+// 揃い判定（横＋縦＋斜め）
 function checkWin(){
   const bet=parseInt(document.getElementById("betInput").value)||1;
-  const mid0=document.getElementById("cell3").firstChild.src;
-  const mid1=document.getElementById("cell4").firstChild.src;
-  const mid2=document.getElementById("cell5").firstChild.src;
-  if(mid0===mid1 && mid1===mid2){
-    coin+=bet*5;
-    document.getElementById("coin").textContent=coin;
-    alert("中段揃い！ +" + (bet*5) + " コイン");
+  let win=false;
+
+  // 横
+  for(let row=0;row<3;row++){
+    const a=document.getElementById("cell"+(row*3)).firstChild.src;
+    const b=document.getElementById("cell"+(row*3+1)).firstChild.src;
+    const c=document.getElementById("cell"+(row*3+2)).firstChild.src;
+    if(a===b && b===c){ coin+=bet*5; win=true; alert("横揃い！ +" + (bet*5) + " コイン"); }
+  }
+  // 縦
+  for(let col=0;col<3;col++){
+    const a=document.getElementById("cell"+col).firstChild.src;
+    const b=document.getElementById("cell"+(col+3)).firstChild.src;
+    const c=document.getElementById("cell"+(col+6)).firstChild.src;
+    if(a===b && b===c){ coin+=bet*5; win=true; alert("縦揃い！ +" + (bet*5) + " コイン"); }
+  }
+  // 斜め
+  const d1=[document.getElementById("cell0").firstChild.src,
+            document.getElementById("cell4").firstChild.src,
+            document.getElementById("cell8").firstChild.src];
+  const d2=[document.getElementById("cell2").firstChild.src,
+            document.getElementById("cell4").firstChild.src,
+            document.getElementById("cell6").firstChild.src];
+  if(d1[0]===d1[1] && d1[1]===d1[2]){ coin+=bet*5; win=true; alert("斜め揃い！ +" + (bet*5) + " コイン"); }
+  if(d2[0]===d2[1] && d2[1]===d2[2]){ coin+=bet*5; win=true; alert("斜め揃い！ +" + (bet*5) + " コイン"); }
+
+  if(!win && insuranceActive){
+    coin+=bet;
+    insuranceActive=false;
+    alert("ハズレ…でも保険でベッド返却！");
   }
 
-  // 斜め揃いチェック
-  const diag1=[document.getElementById("cell0").firstChild.src,
-               document.getElementById("cell4").firstChild.src,
-               document.getElementById("cell8").firstChild.src];
-  const diag2=[document.getElementById("cell2").firstChild.src,
-               document.getElementById("cell4").firstChild.src,
-               document.getElementById("cell6").firstChild.src];
-  if(diag1[0]===diag1[1] && diag1[1]===diag1[2]){
-    coin+=bet*5;
-    document.getElementById("coin").textContent=coin;
-    alert("斜め揃い！ +" + (bet*5) + " コイン");
-  }
-  if(diag2[0]===diag2[1] && diag2[1]===diag2[2]){
-    coin+=bet*5;
-    document.getElementById("coin").textContent=coin;
-    alert("斜め揃い！ +" + (bet*5) + " コイン");
-  }
+  document.getElementById("coin").textContent=coin;
 }
 
 function endTurn(){
