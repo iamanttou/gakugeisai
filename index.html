@@ -3,74 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Card Slot Clicker 1to9</title>
+<title>Card slot Clicker 1to9</title>
 <style>
 body{
   margin:0;
   padding:0;
-  background:#f5f5f5;
-  color:#333;
+  background:#222;
+  color:#fff;
   font-family:sans-serif;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
+  align-items:flex-start;
   min-height:100vh;
 }
 .wrap{
-  transform:scale(0.85);
-  transform-origin:top center;
+  transform: scale(0.9);
+  transform-origin: top center;
+  display:flex;
+  flex-direction:row;
+  gap:12px;
+  padding:12px;
+  width:100%;
+  max-width:1400px;
+  box-sizing:border-box;
+}
+
+/* 左：スロット */
+.slot-section{
+  flex:1;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:12px;
-  padding:12px;
-  width:1200px;
-  max-width:100%;
-  box-sizing:border-box;
 }
 
-/* XPバー */
-.xp-bar{
-  width:100%;
-  background:#ddd;
-  border-radius:8px;
-  height:20px;
-  overflow:hidden;
-}
-.xp-fill{
-  background:#6cf;
-  height:100%;
-  width:0%;
-  transition:width 0.3s;
-}
-.xp-text{
-  text-align:center;
-  margin-top:4px;
-  font-size:0.9rem;
-}
-
-/* レイアウト */
-.main{
+/* 右：クリッカー */
+.clicker-section{
+  flex:1;
   display:flex;
-  width:100%;
+  flex-direction:column;
+  align-items:center;
   gap:12px;
 }
 
-/* 左：スロット */
+/* スロットエリア */
 .slot-area{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
   gap:6px;
   width:100%;
+  max-width:420px;
 }
 .cell{
   aspect-ratio:8/5;
-  border:2px solid #ccc;
+  border:2px solid #444;
   border-radius:6px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#fff;
+  background:#111;
   overflow:hidden;
 }
 .cell img{
@@ -78,48 +69,38 @@ body{
   height:100%;
   object-fit:contain;
 }
+
+/* 停止ボタン */
 .stop-buttons{
   display:flex;
   justify-content:center;
-  gap:8px;
-  margin:10px 0;
+  gap:10px;
 }
 .stopBtn{
   padding:6px 12px;
   font-size:0.9rem;
   border:none;
   border-radius:6px;
-  background:#ffeb3b;
-  color:#333;
+  background:#ffcc00;
+  color:#000;
   cursor:pointer;
 }
-.stopBtn:disabled{ background:#eee; cursor:not-allowed; }
+.stopBtn:disabled{ background:#555; cursor:not-allowed; }
+
+/* スピン */
 #spinBtn{
-  margin:12px;
+  margin:6px;
   padding:10px 22px;
   font-size:1.2rem;
   cursor:pointer;
   border:none;
   border-radius:12px;
-  background:#f66;
+  background:#e00;
   color:#fff;
   font-weight:bold;
-  transition:transform 0.1s;
+  box-shadow:0 4px 8px rgba(0,0,0,0.6);
 }
-#spinBtn:active{ transform:scale(0.95); }
 #spinBtn:disabled{ opacity:0.6; cursor:not-allowed; }
-  .clicker {
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  object-fit: contain;
-  cursor: pointer;
-  transition: transform 0.1s ease; /* アニメーション追加 */
-}
-.clicker:active {
-  transform: scale(0.9); /* 押したとき縮小 */
-}
-
 
 /* ステータス */
 .status{
@@ -147,8 +128,8 @@ body{
 .card{
   aspect-ratio:5/8;
   width:72px;
-  background:#fafafa;
-  border:2px solid #ccc;
+  background:#f3f3f3;
+  border:2px solid #aaa;
   border-radius:6px;
   display:flex;
   align-items:center;
@@ -161,137 +142,97 @@ body{
   object-fit:contain;
 }
 
-/* 右：クリッカー＋スキル */
-.right-side{
+/* リロール選択ボタン */
+.reroll-buttons{
   display:flex;
-  flex-direction:column;
-  flex:1;
-  gap:12px;
+  gap:10px;
+  margin-top:8px;
+}
+.rerollBtn{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#08f;
+  color:#fff;
+  cursor:pointer;
 }
 
 /* クリッカー */
-.clicker{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-}
-.clicker-img{
-  width:300px;
-  height:300px;
+#clickerCircle{
+  width:200px;
+  height:200px;
   border-radius:50%;
   overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 4px 8px rgba(0,0,0,0.2);
+  cursor:pointer;
 }
-.clicker-img img{
+#clickerCircle img{
   width:100%;
   height:100%;
+  border-radius:50%;
   object-fit:contain;
+  transition:transform 0.1s;
 }
-.upgrades{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+#clickerCircle:active img{
+  transform:scale(0.9);
 }
-.upgrades button{
-  padding:6px 12px;
-  font-size:0.9rem;
-  border:none;
-  border-radius:6px;
-  background:#90caf9;
-  color:#fff;
-  cursor:pointer;
-}
-.upgrades button:disabled{ background:#ccc; cursor:not-allowed; }
 
-/* スキルツリー */
-.skills{
-  flex:1;
-  border:2px solid #ccc;
-  border-radius:8px;
-  padding:10px;
-}
-.skills h3{
-  margin:0 0 6px 0;
-  font-size:1rem;
-}
-.skill-node{
-  margin:6px 0;
-}
-.skill-node button{
-  padding:4px 10px;
-  font-size:0.9rem;
+/* 強化ボタン */
+#clickUpgrade, #autoUpgrade{
+  margin-top:8px;
+  padding:6px 12px;
   border:none;
   border-radius:6px;
-  background:#64b5f6;
+  background:#08f;
   color:#fff;
   cursor:pointer;
 }
-.skill-node button:disabled{ background:#ccc; cursor:not-allowed; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- XPバー -->
-  <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
-  <div class="xp-text" id="xpText">Lv 1 | XP 0/5</div>
-
-  <div class="main">
-
-    <!-- 左：スロット -->
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
-      <div class="slot-area">
-        <div class="cell" id="cell0"></div>
-        <div class="cell" id="cell1"></div>
-        <div class="cell" id="cell2"></div>
-        <div class="cell" id="cell3"></div>
-        <div class="cell" id="cell4"></div>
-        <div class="cell" id="cell5"></div>
-        <div class="cell" id="cell6"></div>
-        <div class="cell" id="cell7"></div>
-        <div class="cell" id="cell8"></div>
-      </div>
-      <div class="stop-buttons">
-        <button class="stopBtn" id="stop0" disabled>左リール停止</button>
-        <button class="stopBtn" id="stop1" disabled>中リール停止</button>
-        <button class="stopBtn" id="stop2" disabled>右リール停止</button>
-      </div>
+  <!-- スロット -->
+  <div class="slot-section">
+    <div class="slot-area">
+      <div class="cell" id="cell0"></div>
+      <div class="cell" id="cell1"></div>
+      <div class="cell" id="cell2"></div>
+      <div class="cell" id="cell3"></div>
+      <div class="cell" id="cell4"></div>
+      <div class="cell" id="cell5"></div>
+      <div class="cell" id="cell6"></div>
+      <div class="cell" id="cell7"></div>
+      <div class="cell" id="cell8"></div>
+    </div>
+    <div class="stop-buttons">
+      <button class="stopBtn" id="stop0" disabled>左リール停止</button>
+      <button class="stopBtn" id="stop1" disabled>中リール停止</button>
+      <button class="stopBtn" id="stop2" disabled>右リール停止</button>
+    </div>
+    <div>
       <button id="spinBtn">スピン</button>
-      <div class="status">
-        <div>コイン: <span id="coin">100</span></div>
-        <div>マナ: <span id="mana">0</span></div>
-        <div>スキルP: <span id="skill">0</span></div>
-      </div>
-      <div class="hand" id="hand"></div>
     </div>
-
-    <!-- 右：クリッカー＋スキル -->
-    <div class="right-side">
-      <!-- クリッカー -->
-      <div class="clicker">
-        <div class="clicker-img" id="clickerBtn"><img src="images/click1.png" alt="click"></div>
-        <div class="upgrades">
-          <button id="upgradeClick">クリック+1 (コスト2マナ)</button>
-          <button id="upgradeAuto">自動+1/s (コスト3マナ)</button>
-          <button id="upgradeCrit">クリティカル率+1% (コスト4マナ)</button>
-        </div>
-      </div>
-      <!-- スキルツリー -->
-      <div class="skills">
-        <h3>スキルツリー</h3>
-        <div class="skill-node"><button id="skill1">スロット配当+1 (消費1P)</button></div>
-        <div class="skill-node"><button id="skill2">クリック収益+1 (消費1P)</button></div>
-        <div class="skill-node"><button id="skill3">自動収益+1 (消費1P)</button></div>
-      </div>
+    <div class="status">
+      <div>コイン: <span id="coin">100</span></div>
+      <div>マナ: <span id="mana">0</span></div>
     </div>
-
+    <div class="hand" id="hand"></div>
+    <div class="reroll-buttons" id="rerollBtns" style="display:none;">
+      <button class="rerollBtn" onclick="rerollReel(0)">左</button>
+      <button class="rerollBtn" onclick="rerollReel(1)">中</button>
+      <button class="rerollBtn" onclick="rerollReel(2)">右</button>
+    </div>
   </div>
+
+  <!-- クリッカー -->
+  <div class="clicker-section">
+    <div id="clickerCircle">
+      <img src="images/click1.png" alt="Clicker">
+    </div>
+    <button id="clickUpgrade">クリック強化</button>
+    <button id="autoUpgrade">自動強化</button>
+  </div>
+
 </div>
 
 <script>
@@ -302,12 +243,13 @@ let deck=[];
 let discard=[];
 let spinning=[false,false,false];
 let spinIntervals=[null,null,null];
-let level=1, xp=0, skillP=0;
 
-// スロット画像
-const symbols=["images/slot1.png","images/slot2.png","images/slot3.png","images/slot4.png","images/slot5.png","images/slot6.png","images/slot7.png","images/slot8.png","images/slot9.png"];
+const symbols=[
+  "images/slot1.png","images/slot2.png","images/slot3.png",
+  "images/slot4.png","images/slot5.png","images/slot6.png",
+  "images/slot7.png","images/slot8.png","images/slot9.png",
+];
 
-// カード定義
 const cardTypes=[
   {img:"images/card1.png", type:"reroll", cost:2},
   {img:"images/card2.png", type:"double", cost:2},
@@ -318,47 +260,165 @@ const cardTypes=[
   {img:"images/card7.png", type:"coinplus", cost:1}
 ];
 
-// デッキ処理
-function initDeck(){ deck=[]; for(let i=0;i<3;i++) deck=deck.concat(cardTypes); shuffle(deck); }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
-function drawCard(){ if(hand.length>=7) return; if(deck.length===0){ deck=discard; discard=[]; shuffle(deck); } if(deck.length>0){ const card=deck.pop(); hand.push(card); renderHand(); } }
-function renderHand(){ const handDiv=document.getElementById("hand"); handDiv.innerHTML=""; hand.forEach((card,idx)=>{ const c=document.createElement("div"); c.className="card"; const img=document.createElement("img"); img.src=card.img; c.appendChild(img); c.onclick=()=>playCard(idx); handDiv.appendChild(c); }); }
-function playCard(idx){ const card=hand[idx]; if(mana<card.cost) return; mana-=card.cost; discard.push(card); hand.splice(idx,1); renderHand(); applyEffect(card); updateStatus(); }
-function applyEffect(card){ switch(card.type){ case "coinplus": coin+=5; break; case "manarecover": mana+=2; break; case "double": coin*=2; break; case "draw": drawCard(); break; } }
+function initDeck(){
+  deck=[];
+  for(let i=0;i<3;i++){ deck=deck.concat(cardTypes); }
+  shuffle(deck);
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+function drawCard(){
+  if(hand.length >= 7) return;
+  if(deck.length===0){ deck=discard; discard=[]; shuffle(deck); }
+  if(deck.length>0){
+    const card=deck.pop();
+    hand.push(card);
+    renderHand();
+  }
+}
+function renderHand(){
+  const handDiv=document.getElementById("hand");
+  handDiv.innerHTML="";
+  hand.forEach((card,idx)=>{
+    const c=document.createElement("div");
+    c.className="card";
+    const img=document.createElement("img");
+    img.src=card.img;
+    c.appendChild(img);
+    c.onclick=()=>playCard(idx);
+    handDiv.appendChild(c);
+  });
+}
+function playCard(idx){
+  const card=hand[idx];
+  if(mana<card.cost) return;
+  mana-=card.cost;
+  document.getElementById("mana").textContent=mana;
+  discard.push(card);
+  hand.splice(idx,1);
+  renderHand();
+  applyEffect(card);
+}
+function applyEffect(card){
+  switch(card.type){
+    case "coinplus": coin+=5; break;
+    case "manarecover": mana+=2; break;
+    case "double": coin*=2; break;
+    case "draw": drawCard(); break;
+    case "reroll": document.getElementById("rerollBtns").style.display="flex"; break;
+  }
+  document.getElementById("coin").textContent=coin;
+  document.getElementById("mana").textContent=mana;
+}
 
-// スロット処理
-function spin(){ if(coin<20){ alert("コイン不足！"); return; } coin-=20; updateStatus(); document.getElementById("spinBtn").disabled=true; for(let r=0;r<3;r++){ spinning[r]=true; document.getElementById("stop"+r).disabled=false; let cells=[document.getElementById("cell"+r),document.getElementById("cell"+(r+3)),document.getElementById("cell"+(r+6))]; spinIntervals[r]=setInterval(()=>{ cells.forEach(cell=>{ const img=document.createElement("img"); img.src=symbols[Math.floor(Math.random()*symbols.length)]; cell.innerHTML=""; cell.appendChild(img); }); },100); } }
-function stopReel(r){ if(!spinning[r]) return; clearInterval(spinIntervals[r]); spinIntervals[r]=null; spinning[r]=false; document.getElementById("stop"+r).disabled=true; if(!spinning[0] && !spinning[1] && !spinning[2]){ checkWin(); endTurn(); } }
-function checkWin(){ const lines=[ [0,1,2],[3,4,5],[6,7,8], [0,3,6],[1,4,7],[2,5,8], [0,4,8],[2,4,6] ]; lines.forEach(line=>{ const imgs=line.map(i=>document.getElementById("cell"+i).firstChild?.src); if(imgs.every(v=>v && v===imgs[0])){ coin+=20*5; xp+=2; updateStatus(); alert("揃い！ +" + (20*5) + " コイン"); } }); }
+function spin(){
+  if(coin<20){ alert("コイン不足！"); return; }
+  coin-=20;
+  document.getElementById("coin").textContent=coin;
+  document.getElementById("spinBtn").disabled = true;
 
-// ターン終了
-function endTurn(){ mana++; drawCard(); document.getElementById("spinBtn").disabled=false; updateStatus(); }
+  for(let r=0;r<3;r++){
+    spinning[r]=true;
+    document.getElementById("stop"+r).disabled=false;
+    let cells=[document.getElementById("cell"+r),document.getElementById("cell"+(r+3)),document.getElementById("cell"+(r+6))];
+    spinIntervals[r]=setInterval(()=>{
+      cells.forEach(cell=>{
+        const img=document.createElement("img");
+        img.src=symbols[Math.floor(Math.random()*symbols.length)];
+        cell.innerHTML="";
+        cell.appendChild(img);
+      });
+    },100);
+  }
+}
+function stopReel(r){
+  if(!spinning[r]) return;
+  clearInterval(spinIntervals[r]);
+  spinIntervals[r]=null;
+  spinning[r]=false;
+  document.getElementById("stop"+r).disabled=true;
+  if(!spinning[0] && !spinning[1] && !spinning[2]){
+    checkWin();
+    endTurn();
+  }
+}
+function rerollReel(r){
+  let cells=[document.getElementById("cell"+r),document.getElementById("cell"+(r+3)),document.getElementById("cell"+(r+6))];
+  cells.forEach(cell=>{
+    const img=document.createElement("img");
+    img.src=symbols[Math.floor(Math.random()*symbols.length)];
+    cell.innerHTML="";
+    cell.appendChild(img);
+  });
+  document.getElementById("rerollBtns").style.display="none";
+}
 
-// クリッカー
-let clickPower=1, autoPower=0, critRate=0;
-document.getElementById("clickerBtn").onclick=()=>{ let gain=clickPower; if(Math.random()<critRate/100) gain*=2; coin+=gain; updateStatus(); };
-setInterval(()=>{ if(autoPower>0){ coin+=autoPower; updateStatus(); } },1000);
+// 揃い判定（横・縦・斜め）
+function checkWin(){
+  const bet=20;
+  let lines=[
+    [0,1,2],[3,4,5],[6,7,8], // 横
+    [0,3,6],[1,4,7],[2,5,8], // 縦
+    [0,4,8],[2,4,6]          // 斜め
+  ];
+  lines.forEach(line=>{
+    const [a,b,c]=line;
+    const s1=document.getElementById("cell"+a).firstChild.src;
+    const s2=document.getElementById("cell"+b).firstChild.src;
+    const s3=document.getElementById("cell"+c).firstChild.src;
+    if(s1===s2 && s2===s3){
+      coin+=bet*5;
+      document.getElementById("coin").textContent=coin;
+      alert("揃い！ +" + (bet*5) + " コイン");
+    }
+  });
+}
 
-// 強化
-document.getElementById("upgradeClick").onclick=()=>{ let cost=2+(level-1); if(mana>=cost){ mana-=cost; clickPower++; updateStatus(); } };
-document.getElementById("upgradeAuto").onclick=()=>{ let cost=3+(level-1); if(mana>=cost){ mana-=cost; autoPower++; updateStatus(); } };
-document.getElementById("upgradeCrit").onclick=()=>{ let cost=4+(level-1); if(mana>=cost){ mana-=cost; critRate++; updateStatus(); } };
-
-// スキル
-document.getElementById("skill1").onclick=()=>{ if(skillP>0){ skillP--; skill_bonus_slot++; updateStatus(); } };
-document.getElementById("skill2").onclick=()=>{ if(skillP>0){ skillP--; clickPower++; updateStatus(); } };
-document.getElementById("skill3").onclick=()=>{ if(skillP>0){ skillP--; autoPower++; updateStatus(); } };
-let skill_bonus_slot=0;
-
-// ステータス更新
-function updateStatus(){ document.getElementById("coin").textContent=coin; document.getElementById("mana").textContent=mana; document.getElementById("skill").textContent=skillP; let xpNeeded=level*5; document.getElementById("xpFill").style.width=(xp/xpNeeded*100)+"%"; document.getElementById("xpText").textContent=`Lv ${level} | XP ${xp}/${xpNeeded}`; if(xp>=xpNeeded){ xp-=xpNeeded; level++; coin+=10; mana+=2; skillP++; updateStatus(); } }
+function endTurn(){
+  mana++;
+  document.getElementById("mana").textContent=mana;
+  drawCard();
+  document.getElementById("spinBtn").disabled = false;
+}
 
 // 初期化
-initDeck(); drawCard(); updateStatus();
+initDeck();
+drawCard();
+
 document.getElementById("spinBtn").onclick=()=>spin();
 document.getElementById("stop0").onclick=()=>stopReel(0);
 document.getElementById("stop1").onclick=()=>stopReel(1);
 document.getElementById("stop2").onclick=()=>stopReel(2);
+
+// クリック処理
+let clickPower=1;
+let autoPower=0;
+document.getElementById("clickerCircle").onclick=()=>{
+  coin+=clickPower;
+  document.getElementById("coin").textContent=coin;
+};
+document.getElementById("clickUpgrade").onclick=()=>{
+  if(mana>=2){
+    mana-=2; clickPower++;
+    document.getElementById("mana").textContent=mana;
+  }
+};
+document.getElementById("autoUpgrade").onclick=()=>{
+  if(mana>=3){
+    mana-=3; autoPower++;
+    document.getElementById("mana").textContent=mana;
+  }
+};
+setInterval(()=>{
+  if(autoPower>0){
+    coin+=autoPower;
+    document.getElementById("coin").textContent=coin;
+  }
+},1000);
 </script>
 </body>
 </html>
