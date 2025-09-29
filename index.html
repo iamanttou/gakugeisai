@@ -1,242 +1,266 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Card Slot Clicker 1to9</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #fdfdfd;
-      font-family: sans-serif;
-    }
-    .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 10px;
-    }
-    .bar-container {
-      width: 40%;
-      background: #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 20px;
-    }
-    .bar {
-      height: 100%;
-      text-align: center;
-      color: white;
-      font-size: 12px;
-      line-height: 20px;
-    }
-    .xp-bar { background: linear-gradient(to right, #aaf, #55f); }
-    .main {
-      display: flex;
-      width: 100%;
-      height: 90vh;
-    }
-    .slot-area, .clicker-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    canvas {
-      background: #eee;
-      border-radius: 10px;
-    }
-    .stats {
-      margin: 5px;
-      font-size: 18px;
-    }
-    button {
-      margin: 5px;
-      padding: 10px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .spin-btn { background: #f33; color: white; }
-    .stop-btn { background: #ffcc00; color: black; }
-    .upgrade-btn { background: #3399ff; color: white; }
-    .click-circle {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: url('click1.png') no-repeat center/cover;
-      transition: transform 0.1s;
-    }
-    .click-circle:active {
-      transform: scale(0.9);
-    }
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .card {
-      width: 80px;
-      height: 120px;
-      margin: 5px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 10px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カードスロット＆クリッカー</title>
+<style>
+body{
+  margin:0;
+  padding:0;
+  background:#f0f0f0;
+  font-family:sans-serif;
+}
+.wrap{
+  display:flex;
+  width:100%;
+  height:100vh;
+}
+.left, .right{
+  box-sizing:border-box;
+  padding:10px;
+}
+.left{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.right{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+.slot-area{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  width:100%;
+  max-width:400px;
+}
+.cell{
+  aspect-ratio:8/5;
+  border:2px solid #444;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#111;
+  overflow:hidden;
+  position:relative;
+}
+.cell img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.status{
+  margin-top:5px;
+  font-size:16px;
+}
+.hand{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  width:100%;
+  border:3px solid #c33;
+  padding:8px;
+  border-radius:8px;
+  margin-top:10px;
+}
+.card{
+  aspect-ratio:5/8;
+  width:72px;
+  background:#ffd;
+  border:2px solid #ccc;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+#spinBtn{
+  margin:12px;
+  padding:10px 22px;
+  font-size:1.2rem;
+  cursor:pointer;
+  border:none;
+  border-radius:12px;
+  background:#f33;
+  color:#fff;
+}
+.stop-buttons{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+}
+.stopBtn{
+  padding:6px 12px;
+  font-size:0.9rem;
+  border:none;
+  border-radius:6px;
+  background:#ffcc00;
+  color:#000;
+  cursor:pointer;
+}
+.stopBtn:disabled{ background:#555; cursor:not-allowed; }
+
+/* 右側クリック＆スキル */
+.click-circle{
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  background:url('images/click1.png') no-repeat center/cover;
+  margin-bottom:10px;
+  transition:transform 0.1s;
+}
+.click-circle:active{
+  transform:scale(0.9);
+}
+.skill-btn{
+  margin:5px;
+  padding:10px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  background:#3399ff;
+  color:#fff;
+  cursor:pointer;
+}
+.skill-btn:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+.skill-section{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:10px;
+  width:100%;
+}
+.level-bar{
+  width:90%;
+  height:20px;
+  background:#ccc;
+  border-radius:10px;
+  margin-bottom:5px;
+  overflow:hidden;
+}
+.level-bar-fill{
+  height:100%;
+  background:#0a0;
+  width:0%;
+  transition:width 0.3s;
+}
+</style>
 </head>
 <body>
-  <div class="top-bar">
-    <div class="bar-container"><div id="xpBar" class="bar xp-bar">XP</div></div>
-    <div>コイン: <span id="coins">100</span></div>
-    <div>マナ: <span id="mana">0</span></div>
-    <div>Lv: <span id="level">1</span></div>
-  </div>
-  <div class="main">
-    <div class="slot-area">
-      <canvas id="slotCanvas" width="300" height="300"></canvas>
-      <div>
-        <button id="spinBtn" class="spin-btn">スピン</button>
-        <button id="stopBtn" class="stop-btn">停止</button>
-      </div>
-      <div class="cards" id="hand"></div>
+<div class="wrap">
+  <div class="left">
+    <div class="slot-area" id="slotArea">
+      <div class="cell" id="cell0"></div>
+      <div class="cell" id="cell1"></div>
+      <div class="cell" id="cell2"></div>
+      <div class="cell" id="cell3"></div>
+      <div class="cell" id="cell4"></div>
+      <div class="cell" id="cell5"></div>
+      <div class="cell" id="cell6"></div>
+      <div class="cell" id="cell7"></div>
+      <div class="cell" id="cell8"></div>
     </div>
-    <div class="clicker-area">
+    <div class="stop-buttons">
+      <button class="stopBtn" id="stop0" disabled>左リール停止</button>
+      <button class="stopBtn" id="stop1" disabled>中リール停止</button>
+      <button class="stopBtn" id="stop2" disabled>右リール停止</button>
+    </div>
+    <button id="spinBtn">スピン</button>
+    <div class="status">コイン: <span id="coin">100</span> マナ: <span id="mana">0</span></div>
+    <div class="hand" id="hand"></div>
+  </div>
+  <div class="right">
+    <div class="skill-section">
+      <div class="level-bar"><div class="level-bar-fill" id="xpBar"></div></div>
+      <div>Lv <span id="level">1</span> XP <span id="xp">0</span></div>
       <div class="click-circle" id="clickCircle"></div>
-      <div class="stats">クリック強化 Lv <span id="clickLv">1</span> (コスト<span id="clickCost">2</span>)</div>
-      <button id="upgradeClick" class="upgrade-btn">クリック強化</button>
-      <div class="stats">自動クリック Lv <span id="autoLv">0</span> (コスト<span id="autoCost">3</span>)</div>
-      <button id="upgradeAuto" class="upgrade-btn">自動クリック</button>
+      <div>クリック強化 Lv <span id="clickLv">1</span> コスト:<span id="clickCost">2</span></div>
+      <button id="upgradeClick" class="skill-btn">クリック強化</button>
+      <div>自動クリック Lv <span id="autoLv">0</span> コスト:<span id="autoCost">3</span></div>
+      <button id="upgradeAuto" class="skill-btn">自動クリック</button>
+    </div>
+    <div class="skill-section">
+      <h3>スキルツリー</h3>
+      <button class="skill-btn" id="skill1">スキル1</button>
+      <button class="skill-btn" id="skill2">スキル2</button>
+      <button class="skill-btn" id="skill3">スキル3</button>
     </div>
   </div>
+</div>
+<script>
+let coin=100, mana=0, hand=[], deck=[], discard=[];
+let spinning=[false,false,false], spinIntervals=[null,null,null];
+let clickPower=1, autoPower=0, clickLv=1, autoLv=0;
+let xp=0, level=1, luck=50, activeEvent=null;
+let eventTimeout=null;
 
-  <script>
-    let coins = 100;
-    let mana = 0;
-    let level = 1;
-    let xp = 0;
-    let clickPower = 1;
-    let autoPower = 0;
-    let clickLv = 1;
-    let autoLv = 0;
+// スロット画像
+const symbols=[
+  "images/slot1.png","images/slot2.png","images/slot3.png",
+  "images/slot4.png","images/slot5.png","images/slot6.png",
+  "images/slot7.png","images/slot8.png","images/slot9.png"
+];
+// カード
+const cardTypes=[
+  {img:"images/card1.png", type:"reroll", cost:2},
+  {img:"images/card2.png", type:"double", cost:2},
+  {img:"images/card3.png", type:"wild", cost:3},
+  {img:"images/card4.png", type:"insurance", cost:2},
+  {img:"images/card5.png", type:"superspin", cost:3},
+  {img:"images/card6.png", type:"manarecover", cost:1},
+  {img:"images/card7.png", type:"coinplus", cost:1}
+];
 
-    // イベントシステム
-    let activeEvent = null;
-    let eventTimeout = null;
-    function triggerEvent() {
-      if (Math.random() < 0.5) {
-        const slotEvents = ["ジャックポットチャンス","ハズレスパイラル","マナの渦","リールフリーズ","倍返し"];
-        const clickerEvents = ["ボーナスタップ","自動連打モード","マナ消費倍増","黄金のクリック","休憩タイム"];
-        const globalEvents = ["幸運の日","不運の日","強欲の女神","静寂のターン","祝福"];
-        const pools = [slotEvents, clickerEvents, globalEvents];
-        let chosenPool = pools[Math.floor(Math.random()*pools.length)];
-        let event = chosenPool[Math.floor(Math.random()*chosenPool.length)];
-
-        activeEvent = event;
-        if (clickerEvents.includes(event)) {
-          alert("クリッカーイベント発生: " + event + " (10秒有効)");
-          if (eventTimeout) clearTimeout(eventTimeout);
-          eventTimeout = setTimeout(()=>{ activeEvent=null; }, 10000);
-        } else if (globalEvents.includes(event)) {
-          alert("全体イベント発生: " + event);
-        } else {
-          alert("スロットイベント発生: " + event);
-        }
-      }
-    }
-    setInterval(triggerEvent, 30000);
-
-    // UI更新
-    function updateUI() {
-      document.getElementById("coins").innerText = coins;
-      document.getElementById("mana").innerText = mana;
-      document.getElementById("level").innerText = level;
-      document.getElementById("clickLv").innerText = clickLv;
-      document.getElementById("autoLv").innerText = autoLv;
-      document.getElementById("clickCost").innerText = 2 + (clickLv-1);
-      document.getElementById("autoCost").innerText = 3 + (autoLv-1);
-      let xpNeeded = level*5;
-      let percent = Math.min(100, xp/xpNeeded*100);
-      document.getElementById("xpBar").style.width = percent+"%";
-      document.getElementById("xpBar").innerText = xp+"/"+xpNeeded;
-    }
-
-    // レベルアップ
-    function gainXP(amount){
-      xp += amount;
-      let xpNeeded = level*5;
-      if(xp >= xpNeeded){
-        xp -= xpNeeded;
-        level++;
-        coins += 10;
-        mana += 2;
-      }
-      updateUI();
-    }
-
-    // クリック
-    document.getElementById("clickCircle").addEventListener("click", ()=>{
-      let gain = clickPower;
-      if (activeEvent==="ボーナスタップ") gain += 5;
-      if (activeEvent==="黄金のクリック") { gain += 50; activeEvent=null; }
-      if (activeEvent==="休憩タイム") return;
-      coins += gain;
-      updateUI();
-    });
-
-    document.getElementById("upgradeClick").addEventListener("click", ()=>{
-      let cost = 2+(clickLv-1);
-      if (activeEvent==="マナ消費倍増") cost+=2;
-      if(mana>=cost){
-        mana -= cost;
-        clickLv++;
-        clickPower++;
-      }
-      updateUI();
-    });
-    document.getElementById("upgradeAuto").addEventListener("click", ()=>{
-      let cost = 3+(autoLv-1);
-      if (activeEvent==="マナ消費倍増") cost+=2;
-      if(mana>=cost){
-        mana -= cost;
-        autoLv++;
-        autoPower++;
-      }
-      updateUI();
-    });
-
-    setInterval(()=>{
-      if(autoPower>0){
-        let gain = autoPower;
-        coins += gain;
-        updateUI();
-      }
-    },1000);
-
-    // 仮のスロット(簡易)
-    document.getElementById("spinBtn").addEventListener("click",()=>{
-      if(coins>=20){
-        coins-=20;
-        let win = Math.random()<0.3;
-        if(activeEvent==="ジャックポットチャンス") win = Math.random()<0.5;
-        if(activeEvent==="ハズレスパイラル") win = Math.random()<0.1;
-        if(win){
-          let reward = 50;
-          if(activeEvent==="倍返し") reward*=2;
-          coins+=reward;
-          mana++;
-          gainXP(1);
-        } else {
-          if(activeEvent==="マナの渦") mana++;
-        }
-        updateUI();
-      }
-    });
-
-    updateUI();
-  </script>
+function initDeck(){ deck=[]; for(let i=0;i<3;i++) deck=deck.concat(cardTypes); shuffle(deck);}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function drawCard(){if(hand.length>=7)return;if(deck.length===0){deck=discard; discard=[]; shuffle(deck);}if(deck.length>0){hand.push(deck.pop()); renderHand();}}
+function renderHand(){const h=document.getElementById("hand"); h.innerHTML=""; hand.forEach((card,idx)=>{const c=document.createElement("div"); c.className="card"; const img=document.createElement("img"); img.src=card.img; c.appendChild(img); c.onclick=()=>playCard(idx); h.appendChild(c);});}
+function playCard(idx){const card=hand[idx]; if(mana<card.cost) return; mana-=card.cost; discard.push(card); hand.splice(idx,1); renderHand(); applyEffect(card); updateUI();}
+function applyEffect(card){switch(card.type){case "coinplus": coin+=5; break; case "manarecover": mana+=2; break; case "double": coin*=2; break; case "reroll": spin(true); break; case "superspin": spin(true,3); break; case "wild": break; case "insurance": break;}}
+function updateUI(){document.getElementById("coin").innerText=coin; document.getElementById("mana").innerText=mana; document.getElementById("clickLv").innerText=clickLv; document.getElementById("autoLv").innerText=autoLv; document.getElementById("clickCost").innerText=2+(clickLv-1); document.getElementById("autoCost").innerText=3+(autoLv-1); document.getElementById("xp").innerText=xp; document.getElementById("level").innerText=level; document.getElementById("xpBar").style.width=(xp/(level*5)*100)+"%";}
+function spin(isCard=false,times=1){
+  if(!isCard) mana++;
+  updateUI(); 
+  document.getElementById("spinBtn").disabled=true;
+  for(let r=0;r<3;r++){
+    spinning[r]=true; document.getElementById("stop"+r).disabled=false;
+    let cells=[document.getElementById("cell"+r),document.getElementById("cell"+(r+3)),document.getElementById("cell"+(r+6))];
+    spinIntervals[r]=setInterval(()=>{cells.forEach(cell=>{const img=document.createElement("img"); img.src=symbols[Math.floor(Math.random()*symbols.length)]; cell.innerHTML=""; cell.appendChild(img);});},100);
+  }
+}
+function stopReel(r){if(!spinning[r]) return; clearInterval(spinIntervals[r]); spinIntervals[r]=null; spinning[r]=false; document.getElementById("stop"+r).disabled=true; if(!spinning[0]&&!spinning[1]&&!spinning[2]){checkWin(); drawCard(); mana++; updateUI(); document.getElementById("spinBtn").disabled=false;}}
+function checkWin(){const bet=20; const cells=[]; for(let i=0;i<9;i++) cells.push(document.getElementById("cell"+i).firstChild.src); let lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; lines.forEach(l=>{if(cells[l[0]]===cells[l[1]]&&cells[l[1]]===cells[l[2]]){coin+=bet*5; xp+=2; if(xp>=level*5){xp-=level*5; level++; coin+=10; mana+=2;} updateUI();}});}
+document.getElementById("spinBtn").onclick=()=>spin();
+document.getElementById("stop0").onclick=()=>stopReel(0);
+document.getElementById("stop1").onclick=()=>stopReel(1);
+document.getElementById("stop2").onclick=()=>stopReel(2);
+document.getElementById("clickCircle").onclick=()=>{
+  coin+=clickPower;
+  updateUI();
+};
+document.getElementById("upgradeClick").onclick=()=>{
+  const cost=2+(clickLv-1);
+  if(mana>=cost){mana-=cost; clickLv++; clickPower++; coin+=10; mana+=2; updateUI();}};
+document.getElementById("upgradeAuto").onclick=()=>{
+  const cost=3+(autoLv-1);
+  if(mana>=cost){mana-=cost; autoLv++; autoPower++; coin+=10; mana+=2; updateUI();}};
+initDeck(); drawCard(); updateUI();
+</script>
 </body>
 </html>
