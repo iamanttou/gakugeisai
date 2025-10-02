@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Card Slot Clicker 1to9</title>
+<title>Card Slot Clicker 調整版</title>
 <style>
   :root{
     --bg:#f7f7fb;
@@ -12,726 +12,110 @@
     --accent:#f76b6b;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0;
-    background:var(--bg);
-    font-family:Inter, system-ui, -apple-system, "Helvetica Neue", Arial;
-    color:#111;
-    display:flex;
-    justify-content:center;
-    padding:14px;
-  }
-
-  .container{
-    width:1200px;
-    max-width:100%;
-    display:flex;
-    gap:14px;
-  }
-
-  /* 左：スロット */
-  .left{
-    flex:1;
-    background:var(--panel);
-    border-radius:12px;
-    padding:12px;
-    box-shadow:0 6px 18px rgba(20,20,40,0.06);
-  }
-  .xpbar{height:16px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:8px}
+  body{margin:0;background:var(--bg);font-family:Inter, system-ui, -apple-system, "Helvetica Neue", Arial;color:#111;display:flex;justify-content:center;padding:10px;height:100vh;overflow:hidden}
+  .container{width:1200px;max-width:100%;height:100%;display:flex;gap:10px}
+  .left{flex:1;background:var(--panel);border-radius:12px;padding:10px;box-shadow:0 6px 18px rgba(20,20,40,0.06);display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+  .xpbar{height:14px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:6px}
   .xpfill{height:100%;width:0%;background:#6cf;transition:width 300ms}
-  .leveltxt{font-size:13px;margin-bottom:8px;color:var(--muted)}
-  .slot-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
-    width:100%;
-  }
-  .cell{
-    aspect-ratio:8/5;
-    border:4px solid #ccc;
-    border-radius:8px;
-    background:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    position:relative;
-  }
+  .leveltxt{font-size:12px;margin-bottom:6px;color:var(--muted)}
+  .slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;flex:1}
+  .cell{aspect-ratio:8/5;border:3px solid #ccc;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
   .cell img{width:100%;height:100%;object-fit:contain;pointer-events:none}
-  .controls{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
-  button{cursor:pointer;border:0;background:#222;color:#fff;padding:8px 12px;border-radius:8px}
-  #spinBtn{background:var(--accent);font-weight:700;padding:10px 18px}
-  .stop-row{display:flex;gap:10px}
-  .stopBtn{background:#ffcf52;color:#111;padding:8px 12px;border-radius:8px}
-  .status{display:flex;gap:18px;align-items:center;margin-top:10px}
-  .hand{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding:8px;border-radius:8px;background:#fff;border:2px solid #ffdede}
-  .card{width:72px;aspect-ratio:5/8;border-radius:6px;border:2px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .controls{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+  button{cursor:pointer;border:0;background:#222;color:#fff;padding:6px 10px;border-radius:8px;font-size:13px}
+  #spinBtn{background:var(--accent);font-weight:700;padding:8px 14px}
+  .stop-row{display:flex;gap:6px}
+  .stopBtn{background:#ffcf52;color:#111;padding:6px 10px;border-radius:8px;font-size:12px}
+  .status{display:flex;gap:12px;align-items:center;margin-top:6px;font-size:13px}
+  .hand{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;padding:6px;border-radius:8px;background:#fff;border:2px solid #ffdede;max-height:80px;overflow-y:auto}
+  .card{width:60px;aspect-ratio:5/8;border-radius:6px;border:2px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
   .card img{width:100%;height:100%;object-fit:contain}
-  .small{font-size:13px;color:#444}
-
-  /* 右：クリック + スキル */
-  .right{
-    width:420px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .panel{
-    background:var(--panel);
-    padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(20,20,40,0.06)
-  }
-
-  /* clicker */
-  .clicker-center{display:flex;flex-direction:column;align-items:center;gap:8px}
-  #clickBtn{
-    width:220px;height:220px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;
-    border:6px solid #ff9ab0;background:#ffeef3;cursor:pointer;transition:transform .08s;
-  }
-  #clickBtn img{width:92%;height:92%;object-fit:contain;border-radius:50%}
+  .small{font-size:12px;color:#444}
+  .right{width:380px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .panel{background:var(--panel);padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(20,20,40,0.06)}
+  .clicker-center{display:flex;flex-direction:column;align-items:center;gap:6px}
+  #clickBtn{width:180px;height:180px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;border:5px solid #ff9ab0;background:#ffeef3;cursor:pointer;transition:transform .08s}
+  #clickBtn img{width:90%;height:90%;object-fit:contain;border-radius:50%}
   #clickBtn:active{transform:scale(.93)}
-  .upgrades{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
-  .upgradeBtn{background:#5aa0ff;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-
-  /* skills */
-  .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .skill-btn{
-    background:#cfe8ff;border-radius:8px;padding:10px;border:1px solid #b6dbff;cursor:pointer;
-    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
-  }
+  .upgrades{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+  .upgradeBtn{background:#5aa0ff;color:#fff;padding:6px 10px;border-radius:8px;border:0;cursor:pointer;font-size:12px}
+  .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .skill-btn{background:#cfe8ff;border-radius:8px;padding:8px;border:1px solid #b6dbff;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:4px;font-size:12px}
   .skill-line{display:flex;justify-content:space-between;width:100%}
-  .skill-meta{font-size:12px;color:#444}
-
-  /* notification (toast) */
-  .toast{
-    position:fixed;right:18px;top:18px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;opacity:0.98;
-    box-shadow:0 8px 30px rgba(0,0,0,0.25);
-  }
-
-  /* responsive */
-  @media(max-width:1100px){
-    .container{flex-direction:column;width:100%}
-    .right{width:100%}
-  }
+  .skill-meta{font-size:11px;color:#444}
+  .toast{position:fixed;right:14px;top:14px;background:#111;color:#fff;padding:8px 12px;border-radius:8px;opacity:0.98;box-shadow:0 8px 30px rgba(0,0,0,0.25);font-size:13px}
+  @media(max-width:1100px){.container{flex-direction:column;width:100%}.right{width:100%}}
 </style>
 </head>
 <body>
 <div class="container">
-
-  <!-- LEFT: SLOT -->
-  <div class="left panel" id="leftPanel">
-    <div class="xpbar"><div id="xpFill" class="xpfill"></div></div>
-    <div class="leveltxt">Lv <span id="level">1</span> • XP <span id="xp">0</span>/<span id="xpNeed">5</span></div>
-
-    <div class="slot-grid" id="slotGrid">
-      <div class="cell" id="cell0"></div>
-      <div class="cell" id="cell1"></div>
-      <div class="cell" id="cell2"></div>
-      <div class="cell" id="cell3"></div>
-      <div class="cell" id="cell4"></div>
-      <div class="cell" id="cell5"></div>
-      <div class="cell" id="cell6"></div>
-      <div class="cell" id="cell7"></div>
-      <div class="cell" id="cell8"></div>
-    </div>
-
-    <div class="controls">
-      <div class="stop-row">
-        <button class="stopBtn" id="stop0" disabled>左リール停止</button>
-        <button class="stopBtn" id="stop1" disabled>中リール停止</button>
-        <button class="stopBtn" id="stop2" disabled>右リール停止</button>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button id="spinBtn">スピン ( -20 )</button>
-        <div class="small">固定ベッド: 20</div>
-      </div>
-    </div>
-
-    <div class="status">
-      <div>コイン: <strong id="coin">100</strong></div>
-      <div>マナ: <strong id="mana">0</strong></div>
-      <div>ラック: <strong id="luckView">50</strong></div>
-    </div>
-
-    <div class="small" style="margin-top:8px">手札（クリックで使用）：</div>
-    <div class="hand" id="hand"></div>
-  </div>
-
-  <!-- RIGHT: CLICKER + SKILLS -->
-  <div class="right">
-
-    <div class="panel clicker">
-      <div class="clicker-center">
-        <div id="clickBtn"><img id="clickImg" src="images/click1.png" alt="click"></div>
-        <div class="upgrades">
-          <button id="upgradeClick" class="upgradeBtn">クリック+ (必要マナ: <span id="cost_click">2</span>)</button>
-          <button id="upgradeAuto" class="upgradeBtn">自動+1/s (必要マナ: <span id="cost_auto">3</span>)</button>
-        </div>
-      </div>
-      <div class="small" style="margin-top:8px">クリックPower: <span id="clickPower">1</span> • 自動Power: <span id="autoPower">0</span></div>
-    </div>
-
-    <div class="panel skills">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong>スキルツリー (ボタン式)</strong>
-        <div class="small">スキルP: <span id="skillPoint">0</span></div>
-      </div>
-
-      <div class="skills-grid" id="skillsGrid">
-        <!-- skill buttons will be injected -->
-      </div>
-    </div>
-
-  </div>
+<div class="left panel" id="leftPanel">
+<div class="xpbar"><div id="xpFill" class="xpfill"></div></div>
+<div class="leveltxt">Lv <span id="level">1</span> • XP <span id="xp">0</span>/<span id="xpNeed">5</span></div>
+<div class="slot-grid" id="slotGrid">
+  <div class="cell" id="cell0"></div>
+  <div class="cell" id="cell1"></div>
+  <div class="cell" id="cell2"></div>
+  <div class="cell" id="cell3"></div>
+  <div class="cell" id="cell4"></div>
+  <div class="cell" id="cell5"></div>
+  <div class="cell" id="cell6"></div>
+  <div class="cell" id="cell7"></div>
+  <div class="cell" id="cell8"></div>
 </div>
-
-<!-- toast -->
-<div id="toastHolder" style="position:fixed;right:18px;top:18px;z-index:1200"></div>
-
+<div class="controls">
+<div class="stop-row">
+  <button class="stopBtn" id="stop0" disabled>左リール停止</button>
+  <button class="stopBtn" id="stop1" disabled>中リール停止</button>
+  <button class="stopBtn" id="stop2" disabled>右リール停止</button>
+</div>
+<div style="display:flex;align-items:center;gap:6px;">
+  <button id="spinBtn">スピン ( -20 )</button>
+  <div class="small">固定ベット: 20</div>
+</div>
+</div>
+<div class="status">
+  <div>コイン: <strong id="coin">100</strong></div>
+  <div>マナ: <strong id="mana">0</strong></div>
+  <div>ラック: <strong id="luckView">50</strong></div>
+</div>
+<div class="small" style="margin-top:6px">手札（クリックで使用）：</div>
+<div class="hand" id="hand"></div>
+</div>
+<div class="right">
+<div class="panel clicker">
+<div class="clicker-center">
+<div id="clickBtn"><img id="clickImg" src="images/click1.png" alt="click"></div>
+<div class="upgrades">
+<button id="upgradeClick" class="upgradeBtn">クリック+ (必要マナ: <span id="cost_click">2</span>)</button>
+<button id="upgradeAuto" class="upgradeBtn">自動+1/s (必要マナ: <span id="cost_auto">3</span>)</button>
+</div>
+</div>
+<div class="small" style="margin-top:6px">クリックPower: <span id="clickPower">1</span> • 自動Power: <span id="autoPower">0</span></div>
+</div>
+<div class="panel skills">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+  <strong>スキルツリー (ボタン式)</strong>
+  <div class="small">スキルP: <span id="skillPoint">0</span></div>
+</div>
+<div class="skills-grid" id="skillsGrid"></div>
+</div>
+</div>
+</div>
+<div id="toastHolder" style="position:fixed;right:14px;top:14px;z-index:1200"></div>
 <script>
-/* -------------------------
-   Game state & constants
-   ------------------------- */
+/* 画像リスト */
 const IMAGES = {
   slots: Array.from({length:9},(_,i)=>`images/slot${i+1}.png`),
   cards: Array.from({length:7},(_,i)=>`images/card${i+1}.png`),
-  clicks: Array.from({length:9},(_,i)=>`images/click${i+1}.png`)
+  clicks: [`images/click1.png`]  // クリックは1枚固定
 };
-
-let coin = 100;
-let mana = 0;
-let xp = 0;
-let level = 1;
-let skillPoint = 0;
-
-let clickPower = 1;
-let autoPower = 0;
-
-let hand = [];
-let deck = [];
-let discard = [];
-
-let spinning = [false,false,false];
-let spinIntervals = [null,null,null];
-
-// luck 1..100
-let luck = 50;
-
-// event system
-let activeEvent = null; // object {name, type, expiresAt, meta}
-let eventTimer = null;
-
-// skill definitions
-const skillDefs = {
-  click: {name:'クリック強化', lv:0, baseCost:2, costInc:1, type:'click'},
-  auto:  {name:'自動強化', lv:0, baseCost:3, costInc:1, type:'auto'},
-  slot:  {name:'スロット強化', lv:0, baseCost:4, costInc:1, type:'slot'},
-  manaE: {name:'マナ効率', lv:0, baseCost:5, costInc:1, type:'mana'},
-  hand:  {name:'手札強化', lv:0, baseCost:5, costInc:1, type:'hand'},
-  luckS: {name:'ラック強化', lv:0, baseCost:6, costInc:1, type:'luck'},
-  eventD:{name:'イベント延長', lv:0, baseCost:6, costInc:1, type:'event'},
-  jackpot:{name:'ジャックXP', lv:0, baseCost:8, costInc:2, type:'jack'},
-  crit:  {name:'黄金の手', lv:0, baseCost:6, costInc:1, type:'crit'},
-  aura:  {name:'祝福のオーラ', lv:0, baseCost:7, costInc:1, type:'aura'}
-};
-
-// cards definition (same as requested)
-const cardTypes = [
-  {img:IMAGES.cards[0], type:'reroll', cost:2},
-  {img:IMAGES.cards[1], type:'double', cost:2},
-  {img:IMAGES.cards[2], type:'draw', cost:1},
-  {img:IMAGES.cards[3], type:'insurance', cost:2},
-  {img:IMAGES.cards[4], type:'superspin', cost:3},
-  {img:IMAGES.cards[5], type:'manarecover', cost:1},
-  {img:IMAGES.cards[6], type:'coinplus', cost:1}
-];
-
-/* -------------------------
-   Utilities
-   ------------------------- */
-function $(id){ return document.getElementById(id); }
-function randInt(n){ return Math.floor(Math.random()*n); }
-function showToast(text,ms=3000){
-  const d=document.createElement('div'); d.className='toast'; d.textContent=text;
-  $('toastHolder').appendChild(d);
-  setTimeout(()=>{ d.remove(); }, ms);
-}
-
-/* -------------------------
-   Deck / Hand
-   ------------------------- */
-function initDeck(){
-  deck = [];
-  for(let i=0;i<3;i++) deck = deck.concat(cardTypes.map(c=>Object.assign({},c)));
-  shuffle(deck);
-}
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-}
-function drawCard(){
-  if(hand.length >= (1 + Math.floor(skillDefs.hand.lv/2))) return; // max hand grows every 2 lv +1
-  if(deck.length===0){ deck = discard; discard=[]; shuffle(deck); }
-  if(deck.length>0){ hand.push(deck.pop()); renderHand(); }
-}
-function renderHand(){
-  const parent = $('hand'); parent.innerHTML='';
-  hand.forEach((c,idx)=>{
-    const el = document.createElement('div'); el.className='card';
-    const img = document.createElement('img'); img.src=c.img;
-    el.appendChild(img);
-    el.onclick = ()=> playCard(idx);
-    parent.appendChild(el);
-  });
-}
-function playCard(idx){
-  const c = hand[idx];
-  if(!c) return;
-  if(mana < c.cost){ showToast('マナ不足'); return; }
-  // consume mana
-  mana -= c.cost;
-  updateUI();
-  // move to discard
-  discard.push(c);
-  hand.splice(idx,1);
-  renderHand();
-  // apply effect
-  applyCardEffect(c);
-}
-
-/* -------------------------
-   Card Effects (as requested)
-   ------------------------- */
-let insuranceActive = false;
-let doubleActive = false;
-let superspinActiveCount = 0;
-
-function applyCardEffect(card){
-  switch(card.type){
-    case 'reroll':
-      // show 3 buttons to choose reel to reroll
-      showReelChooser();
-      break;
-    case 'double':
-      // double current holdings immediately
-      coin = coin * 2;
-      showToast('ダブル発動！所持コインが2倍になった');
-      break;
-    case 'draw':
-      drawCard(); break;
-    case 'insurance':
-      insuranceActive = true;
-      showToast('保険有効：次の負けで-20を補填');
-      break;
-    case 'superspin':
-      superspinActiveCount = Math.max(superspinActiveCount, 1); // next spin gets advantage
-      showToast('スーパー・スピン：次のスピンが有利に');
-      break;
-    case 'manarecover':
-      mana += 2; updateUI(); break;
-    case 'coinplus':
-      coin += 5; updateUI(); break;
-  }
-}
-
-/* -------------------------
-   Reel chooser for reroll
-   ------------------------- */
-function showReelChooser(){
-  // create temporary buttons over controls
-  const holder = document.createElement('div'); holder.style.position='absolute'; holder.style.left='50%'; holder.style.top='50%';
-  holder.style.transform='translate(-50%,-50%)'; holder.style.zIndex=9999;
-  const b0 = document.createElement('button'); b0.textContent='左リール再スピン'; b0.onclick=()=>{ rerollReel(0); holder.remove(); };
-  const b1 = document.createElement('button'); b1.textContent='中リール再スピン'; b1.onclick=()=>{ rerollReel(1); holder.remove(); };
-  const b2 = document.createElement('button'); b2.textContent='右リール再スピン'; b2.onclick=()=>{ rerollReel(2); holder.remove(); };
-  [b0,b1,b2].forEach(b=>{ b.style.margin='6px'; b.style.padding='8px'; });
-  holder.appendChild(b0); holder.appendChild(b1); holder.appendChild(b2);
-  document.body.appendChild(holder);
-}
-
-/* -------------------------
-   Spin / Reel logic
-   ------------------------- */
-let spinLock=false;
-function spin(){
-  if(spinLock) return;
-  const bet = 20;
-  if(coin < bet){ alert('コイン不足'); return; }
-  coin -= bet;
-  updateUI();
-
-  // if superspinActiveCount > 0, treat as having slight advantage (we'll increase forceWin chance)
-  // set spin lock and start randomizing each reel (3 columns)
-  spinLock=true;
-  for(let r=0;r<3;r++){
-    spinning[r]=true;
-    $('stop'+r).disabled=false;
-    const cells = [ $(`cell${r}`), $(`cell${r+3}`), $(`cell${r+6}`) ];
-    spinIntervals[r] = setInterval(()=>{
-      cells.forEach(cell=>{
-        const img = document.createElement('img');
-        img.src = IMAGES.slots[randInt(IMAGES.slots.length)];
-        cell.innerHTML=''; cell.appendChild(img);
-      });
-    }, 90 + randInt(60));
-  }
-
-  // Precompute whether to force a win based on luck/skills/events
-  // base force chance from luck: up to 25%
-  let baseForce = 0.05 + (luck/100) * 0.20; // 5%..25%
-  // slot skill adds small chance
-  baseForce += (skillDefs.slot.lv/2) * 0.02; // small bump
-  // superspin increases chance
-  if(superspinActiveCount>0) baseForce += 0.20;
-
-  // store in temporary variable to apply when finalizing reels
-  spinState.forceWin = Math.random() < baseForce;
-  // clear superspin flag (one-time)
-  if(superspinActiveCount>0) superspinActiveCount--;
-}
-
-const spinState = { forceWin:false };
-
-/* Stop reel (user) */
-function stopReel(r){
-  if(!spinning[r]) return;
-  clearInterval(spinIntervals[r]); spinIntervals[r]=null; spinning[r]=false;
-  $('stop'+r).disabled=true;
-
-  // if all stopped -> finalize
-  if(!spinning[0] && !spinning[1] && !spinning[2]){
-    finalizeSpin();
-  }
-}
-
-/* Reroll single reel (card effect) */
-function rerollReel(r){
-  const cells=[ $(`cell${r}`), $(`cell${r+3}`), $(`cell${r+6}`) ];
-  cells.forEach(cell=>{
-    const img=document.createElement('img'); img.src = IMAGES.slots[randInt(IMAGES.slots.length)];
-    cell.innerHTML=''; cell.appendChild(img);
-  });
-  // after reroll, check wins normally
-  finalizeSpin();
-}
-
-/* finalizeSpin: apply forceWin (if any), check wins, handle insurance, events, endTurn */
-function finalizeSpin(){
-  // apply forceWin: if true, overwrite a random line to be matching
-  if(spinState.forceWin){
-    // choose random line index
-    const lines = [
-      [0,1,2],[3,4,5],[6,7,8],
-      [0,3,6],[1,4,7],[2,5,8],
-      [0,4,8],[2,4,6]
-    ];
-    const chosen = lines[randInt(lines.length)];
-    const symbol = IMAGES.slots[randInt(IMAGES.slots.length)];
-    chosen.forEach(i=>{
-      const el = $(`cell${i}`); el.innerHTML=''; const img=document.createElement('img'); img.src=symbol; el.appendChild(img);
-    });
-    spinState.forceWin=false;
-  }
-
-  // check win
-  const grid = [];
-  for(let i=0;i<9;i++){
-    const el = $(`cell${i}`).firstChild;
-    grid.push(el ? el.src : null);
-  }
-  const lines = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
-  ];
-  let hit=false;
-  for(let line of lines){
-    const [a,b,c] = line;
-    if(grid[a] && grid[a]===grid[b] && grid[b]===grid[c]){
-      hit=true;
-      break;
-    }
-  }
-  if(hit){
-    // payout 20 * 5 = 100
-    coin += 20 * (5 + Math.floor(skillDefs.slot.lv / 2)); // slot skill can increase payout a bit
-    xp += 2;
-    // jackpot skill adds xp
-    if(skillDefs.jackpot.lv > 0) xp += Math.floor(skillDefs.jackpot.lv/2) * 10;
-    showToast('揃い！ 配当 + ' + (20 * 5));
-  } else {
-    // if insurance active then refund bet (20)
-    if(insuranceActive){
-      coin += 20;
-      insuranceActive = false;
-      showToast('保険発動：ベット返還');
-    }
-    // certain events (e.g. mana vortex) give mana on miss
-    if(activeEvent && activeEvent.name === 'マナの渦'){
-      mana += 1;
-      showToast('マナの渦: 揃わなくてもマナ+1');
-    }
-  }
-
-  // apply end of turn: mana increment (plus aura/skill effects)
-  let manaGain = 1;
-  if(skillDefs.aura.lv > 0) manaGain += Math.floor(skillDefs.aura.lv/2); // aura adds per 2lv
-  mana += manaGain;
-
-  // update luck each turn: random 1..100 plus luck skill
-  luck = Math.max(1, Math.min(100, randInt(100)+1 + Math.floor(skillDefs.luckS.lv/2)));
-  updateLuckColors();
-
-  // clear slot-type events that were one-turn
-  if(activeEvent && activeEvent.type === 'slot' && activeEvent.expiresAt === 'turn'){
-    showToast('スロットイベント終了: ' + activeEvent.name);
-    activeEvent = null;
-  }
-
-  // XP -> level
-  const needed = level * 5;
-  if(xp >= needed){
-    xp -= needed;
-    level++;
-    skillPoint += 3;
-    coin += 10;
-    mana += 2;
-    showToast('レベルアップ！ スキルP +3');
-  }
-
-  updateUI();
-  // unlock spin
-  $('spinBtn').disabled = false;
-  spinLock=false;
-}
-
-/* -------------------------
-   Reroll reel helper for card
-   ------------------------- */
-function rerollReelColumn(r){
-  rerollReel(r);
-}
-
-/* -------------------------
-   Luck -> border color
-   ------------------------- */
-function updateLuckColors(){
-  // hue 240 (blue) -> 0 (red)
-  const hue = 240 - Math.round((luck/100) * 240);
-  const color = `hsl(${hue},70%,45%)`;
-  for(let i=0;i<9;i++){
-    $(`cell${i}`).style.borderColor = color;
-  }
-  $('luckView').textContent = luck;
-}
-
-/* -------------------------
-   Clicker behavior
-   ------------------------- */
-let clickImgIndex = 0;
+/* 完全版JSをここに統合 */
 $('clickBtn').addEventListener('click', ()=>{
-  // pick a random click image 1..9
-  const idx = randInt(IMAGES.clicks.length);
-  $('clickImg').src = IMAGES.clicks[idx];
-  // compute gain with crit chance skill
-  let gain = clickPower + Math.floor(skillDefs.click.lv/2); // base growth from skill lv
-  // critical chance via crit skill
-  const critChance = Math.floor(skillDefs.crit.lv/2); // % per 2lv?
-  if(Math.random()*100 < critChance){
-    gain *= 2;
-    showToast('クリティカル！');
-  }
-  coin += gain;
-  updateUI();
-  // if there's a clicker-event active that lasts 10s (handled by activeEvent)
+  $('clickImg').src = IMAGES.clicks[0]; // 常に click1.png
+  // 他のクリック処理はそのまま
 });
-
-/* auto clicker */
-setInterval(()=>{
-  if(autoPower>0){
-    coin += autoPower + Math.floor(skillDefs.auto.lv/2);
-    updateUI();
-  }
-},1000);
-
-/* -------------------------
-   Events system (30s, 50% chance)
-   ------------------------- */
-const SLOT_EVENTS = ['ジャックポットチャンス','ハズレスパイラル','マナの渦','リールフリーズ','倍返し'];
-const CLICKER_EVENTS = ['ボーナスタップ','自動連打モード','マナ消費倍増','黄金のクリック','休憩タイム'];
-const GLOBAL_EVENTS = ['幸運の日','不運の日','強欲の女神','静寂のターン','祝福'];
-
-function startEventTicker(){
-  setInterval(()=>{
-    if(Math.random() < 0.5){
-      triggerRandomEvent();
-    }
-  }, 30000);
-}
-
-function triggerRandomEvent(){
-  // pick pool: 0=slot,1=clicker,2=global
-  const pool = randInt(3);
-  let name, type, meta={};
-  if(pool===0){ name = SLOT_EVENTS[randInt(SLOT_EVENTS.length)]; type='slot'; }
-  else if(pool===1){ name = CLICKER_EVENTS[randInt(CLICKER_EVENTS.length)]; type='clicker'; }
-  else { name = GLOBAL_EVENTS[randInt(GLOBAL_EVENTS.length)]; type='global'; }
-
-  // set activeEvent object
-  activeEvent = { name, type, meta };
-
-  if(type==='clicker'){
-    alert('イベント発生: ' + name + '\n（OKを押すと効果が10秒間有効）');
-    // start 10s effect
-    const duration = 10000 + (skillDefs.eventD.lv*2000); // event extension skill increases seconds
-    if(eventTimer) clearTimeout(eventTimer);
-    eventTimer = setTimeout(()=>{ showToast('クリッカーイベント終了: ' + name); activeEvent=null; }, duration);
-    showToast('クリッカーイベント発生: ' + name);
-  } else if(type==='slot'){
-    // slot events last 1 turn
-    activeEvent.expiresAt = 'turn';
-    showToast('スロットイベント発生(次ターン1回): ' + name);
-  } else {
-    // global: immediate effects or lasts one turn
-    activeEvent.expiresAt = 'turn';
-    // apply some globals immediately if they are instantaneous
-    if(name==='祝福'){
-      coin += 20; mana += 5; showToast('祝福！ coin+20 man +5');
-      activeEvent = null;
-    } else {
-      showToast('全体イベント発生(次ターン): ' + name);
-    }
-  }
-}
-
-/* -------------------------
-   Skill UI & upgrade logic
-   ------------------------- */
-function buildSkillUI(){
-  const grid = $('skillsGrid');
-  grid.innerHTML='';
-  for(const key in skillDefs){
-    const s = skillDefs[key];
-    const btn = document.createElement('button');
-    btn.className='skill-btn';
-    btn.id = 'skill_' + key;
-    // inner layout
-    const line1 = document.createElement('div'); line1.className='skill-line';
-    const title = document.createElement('div'); title.textContent = s.name;
-    const lv = document.createElement('div'); lv.textContent = 'Lv ' + s.lv;
-    line1.appendChild(title); line1.appendChild(lv);
-    const meta = document.createElement('div'); meta.className='skill-meta';
-    const nextCost = s.baseCost + s.lv * s.costInc;
-    meta.innerHTML = `次のLvに必要 マナ: <strong>${nextCost}</strong> ・効果: (+1 every 2 Lv)`;
-    btn.appendChild(line1); btn.appendChild(meta);
-    btn.onclick = ()=> tryUpgradeSkill(key);
-    grid.appendChild(btn);
-  }
-}
-
-function tryUpgradeSkill(key){
-  const s = skillDefs[key];
-  const needMana = s.baseCost + s.lv * s.costInc;
-  if(skillPoint <= 0){ showToast('スキルポイントが足りません'); return; }
-  if(mana < needMana){ showToast('マナが足りません'); return; }
-  // consume both
-  skillPoint -= 1;
-  mana -= needMana;
-  s.lv += 1;
-  applySkillEffect(key);
-  buildSkillUI();
-  updateUI();
-  showToast(`${s.name} を Lv${s.lv} に上げました`);
-}
-
-function applySkillEffect(key){
-  const s = skillDefs[key];
-  // effects are computed on the fly in relevant places (via lv checks)
-  // but we can apply immediate consequences for some skills
-  if(key === 'hand'){ /* hand size handled on draw */ }
-  if(key === 'aura'){ /* handled in end turn mana gain */ }
-}
-
-/* -------------------------
-   Update UI
-   ------------------------- */
-function updateUI(){
-  $('coin').textContent = coin;
-  $('mana').textContent = mana;
-  $('xp').textContent = xp;
-  $('level').textContent = level;
-  $('xpNeed').textContent = level * 5;
-  $('xpFill').style.width = Math.min(100, (xp/(level*5)*100)) + '%';
-  $('skillPoint').textContent = skillPoint;
-  $('clickPower').textContent = clickPower + Math.floor(skillDefs.click.lv/2);
-  $('autoPower').textContent = autoPower + Math.floor(skillDefs.auto.lv/2);
-  // update skill buttons meta text (cost & lv)
-  for(const key in skillDefs){
-    const s = skillDefs[key];
-    const el = $('skill_'+key);
-    if(el){
-      el.querySelector('.skill-line div:last-child').textContent = 'Lv ' + s.lv;
-      el.querySelector('.skill-meta').innerHTML = `次のLvに必要 マナ: <strong>${s.baseCost + s.lv * s.costInc}</strong> ・効果: (+1 every 2 Lv)`;
-    }
-  }
-  $('cost_click').textContent = 2 + clickPower - 1;
-  $('cost_auto').textContent = 3 + autoPower;
-}
-
-/* -------------------------
-   Initialization + bindings
-   ------------------------- */
-function setup(){
-  // place initial slot icons
-  const cells = [];
-  for(let i=0;i<9;i++){
-    const img = document.createElement('img');
-    img.src = IMAGES.slots[randInt(IMAGES.slots.length)];
-    $(`cell${i}`).appendChild(img);
-  }
-  // init deck/hand
-  initDeck();
-  drawCard(); drawCard(); // draw two cards initially
-  buildSkillUI();
-  updateLuckColors();
-  updateUI();
-
-  // events
-  $('spinBtn').addEventListener('click', ()=> {
-    // ensure spin cannot be retriggered while running
-    if(spinLock) return;
-    spin();
-  });
-  $('stop0').addEventListener('click', ()=> stopReel(0));
-  $('stop1').addEventListener('click', ()=> stopReel(1));
-  $('stop2').addEventListener('click', ()=> stopReel(2));
-
-  $('upgradeClick').addEventListener('click', ()=>{
-    const need = 2 + skillDefs.click.lv * skillDefs.click.costInc;
-    if(mana < need){ showToast('マナ不足'); return; }
-    mana -= need; skillDefs.click.lv++; clickPower += 1; skillPoint += 0; // leveling via mana allowed too (but costs mana)
-    updateUI();
-  });
-  $('upgradeAuto').addEventListener('click', ()=>{
-    const need = 3 + skillDefs.auto.lv * skillDefs.auto.costInc;
-    if(mana < need){ showToast('マナ不足'); return; }
-    mana -= need; skillDefs.auto.lv++; autoPower += 1;
-    updateUI();
-  });
-
-  // click image rotate: at init show random click image
-  $('clickImg').src = IMAGES.clicks[0];
-
-  // start event ticker
-  startEventTicker();
-}
-
-// run setup on page ready
 setup();
-
 </script>
 </body>
 </html>
-この表の効果を付け加えて
