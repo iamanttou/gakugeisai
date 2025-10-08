@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Card Slot Clicker 調整版</title>
+<title>Card Slot Clicker 1to9</title>
 <style>
   :root{
     --bg:#f7f7fb;
@@ -49,72 +49,137 @@
 </head>
 <body>
 <div class="container">
-<div class="left panel" id="leftPanel">
-<div class="xpbar"><div id="xpFill" class="xpfill"></div></div>
-<div class="leveltxt">Lv <span id="level">1</span> • XP <span id="xp">0</span>/<span id="xpNeed">5</span></div>
-<div class="slot-grid" id="slotGrid">
-  <div class="cell" id="cell0"></div>
-  <div class="cell" id="cell1"></div>
-  <div class="cell" id="cell2"></div>
-  <div class="cell" id="cell3"></div>
-  <div class="cell" id="cell4"></div>
-  <div class="cell" id="cell5"></div>
-  <div class="cell" id="cell6"></div>
-  <div class="cell" id="cell7"></div>
-  <div class="cell" id="cell8"></div>
+  <div class="left panel" id="leftPanel">
+    <div class="xpbar"><div id="xpFill" class="xpfill"></div></div>
+    <div class="leveltxt">Lv <span id="level">1</span> • XP <span id="xp">0</span>/<span id="xpNeed">5</span></div>
+
+    <div class="slot-grid" id="slotGrid"></div>
+
+    <div class="controls">
+      <div class="stop-row">
+        <button class="stopBtn" id="stop0" disabled>左リール停止</button>
+        <button class="stopBtn" id="stop1" disabled>中リール停止</button>
+        <button class="stopBtn" id="stop2" disabled>右リール停止</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button id="spinBtn">スピン ( -20 )</button>
+        <div class="small">固定ベット: 20</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div>コイン: <strong id="coin">100</strong></div>
+      <div>マナ: <strong id="mana">0</strong></div>
+      <div>ラック: <strong id="luckView">50</strong></div>
+    </div>
+
+    <div class="small" style="margin-top:6px">手札（クリックで使用）：</div>
+    <div class="hand" id="hand"></div>
+  </div>
+
+  <div class="right">
+    <div class="panel clicker">
+      <div class="clicker-center">
+        <div id="clickBtn"><img id="clickImg" src="images/click1.png" alt="click"></div>
+        <div class="upgrades">
+          <button id="upgradeClick" class="upgradeBtn">クリック+ (必要マナ: <span id="cost_click">2</span>)</button>
+          <button id="upgradeAuto" class="upgradeBtn">自動+1/s (必要マナ: <span id="cost_auto">3</span>)</button>
+        </div>
+      </div>
+      <div class="small" style="margin-top:6px">クリックPower: <span id="clickPower">1</span> • 自動Power: <span id="autoPower">0</span></div>
+    </div>
+
+    <div class="panel skills">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <strong>スキルツリー (ボタン式)</strong>
+        <div class="small">スキルP: <span id="skillPoint">0</span></div>
+      </div>
+      <div class="skills-grid" id="skillsGrid"></div>
+    </div>
+  </div>
 </div>
-<div class="controls">
-<div class="stop-row">
-  <button class="stopBtn" id="stop0" disabled>左リール停止</button>
-  <button class="stopBtn" id="stop1" disabled>中リール停止</button>
-  <button class="stopBtn" id="stop2" disabled>右リール停止</button>
-</div>
-<div style="display:flex;align-items:center;gap:6px;">
-  <button id="spinBtn">スピン ( -20 )</button>
-  <div class="small">固定ベット: 20</div>
-</div>
-</div>
-<div class="status">
-  <div>コイン: <strong id="coin">100</strong></div>
-  <div>マナ: <strong id="mana">0</strong></div>
-  <div>ラック: <strong id="luckView">50</strong></div>
-</div>
-<div class="small" style="margin-top:6px">手札（クリックで使用）：</div>
-<div class="hand" id="hand"></div>
-</div>
-<div class="right">
-<div class="panel clicker">
-<div class="clicker-center">
-<div id="clickBtn"><img id="clickImg" src="images/click1.png" alt="click"></div>
-<div class="upgrades">
-<button id="upgradeClick" class="upgradeBtn">クリック+ (必要マナ: <span id="cost_click">2</span>)</button>
-<button id="upgradeAuto" class="upgradeBtn">自動+1/s (必要マナ: <span id="cost_auto">3</span>)</button>
-</div>
-</div>
-<div class="small" style="margin-top:6px">クリックPower: <span id="clickPower">1</span> • 自動Power: <span id="autoPower">0</span></div>
-</div>
-<div class="panel skills">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-  <strong>スキルツリー (ボタン式)</strong>
-  <div class="small">スキルP: <span id="skillPoint">0</span></div>
-</div>
-<div class="skills-grid" id="skillsGrid"></div>
-</div>
-</div>
-</div>
+
 <div id="toastHolder" style="position:fixed;right:14px;top:14px;z-index:1200"></div>
+
 <script>
-/* 画像リスト */
+const $ = id => document.getElementById(id);
+const randInt = n => Math.floor(Math.random()*n);
+
 const IMAGES = {
   slots: Array.from({length:9},(_,i)=>`images/slot${i+1}.png`),
   cards: Array.from({length:7},(_,i)=>`images/card${i+1}.png`),
-  clicks: [`images/click1.png`]  // クリックは1枚固定
+  clicks: [`images/click1.png`]
 };
-/* 完全版JSをここに統合 */
+
+let spinning = [false,false,false];
+let intervalIds = [null,null,null];
+let coins = 100;
+
+function setup(){
+  const grid = $('slotGrid');
+  grid.innerHTML = '';
+  for(let i=0;i<9;i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const img = document.createElement('img');
+    img.src = IMAGES.slots[randInt(IMAGES.slots.length)];
+    cell.appendChild(img);
+    grid.appendChild(cell);
+  }
+}
+
+function startSpin(){
+  if(coins < 20) return alert('コイン不足！');
+  coins -= 20;
+  $('coin').textContent = coins;
+  for(let i=0;i<3;i++){
+    spinning[i] = true;
+    $('stop'+i).disabled = false;
+    const col = document.querySelectorAll('.cell:nth-child(3n+'+(i+1)+') img');
+    intervalIds[i] = setInterval(()=>{
+      col.forEach(img=>img.src = IMAGES.slots[randInt(IMAGES.slots.length)]);
+    },100);
+  }
+}
+
+function stopReel(index){
+  spinning[index] = false;
+  clearInterval(intervalIds[index]);
+  $('stop'+index).disabled = true;
+  if(spinning.every(s=>!s)){
+    checkResult();
+  }
+}
+
+function checkResult(){
+  const imgs = Array.from(document.querySelectorAll('.cell img'));
+  const middle = [imgs[3].src, imgs[4].src, imgs[5].src];
+  if(middle[0]===middle[1] && middle[1]===middle[2]){
+    coins += 100;
+    $('coin').textContent = coins;
+    showToast('🎉 あたり！ +100 コイン');
+  }
+}
+
+function showToast(msg){
+  const div = document.createElement('div');
+  div.className = 'toast';
+  div.textContent = msg;
+  $('toastHolder').appendChild(div);
+  setTimeout(()=>div.remove(),2000);
+}
+
+$('spinBtn').addEventListener('click', startSpin);
+$('stop0').addEventListener('click', ()=>stopReel(0));
+$('stop1').addEventListener('click', ()=>stopReel(1));
+$('stop2').addEventListener('click', ()=>stopReel(2));
+
 $('clickBtn').addEventListener('click', ()=>{
-  $('clickImg').src = IMAGES.clicks[0]; // 常に click1.png
-  // 他のクリック処理はそのまま
+  $('clickImg').src = IMAGES.clicks[0];
+  coins += 1;
+  $('coin').textContent = coins;
 });
+
 setup();
 </script>
 </body>
