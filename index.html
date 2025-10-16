@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Card Slot Clicker 1to9</title>
+<title>Card Slot Clicker - マナ＋手札機能付き</title>
 <style>
   :root{
     --bg:#f7f7fb;
@@ -114,6 +114,7 @@ const IMAGES = {
 let spinning = [false,false,false];
 let intervalIds = [null,null,null];
 let coins = 100;
+let mana = 0;
 
 function setup(){
   const grid = $('slotGrid');
@@ -148,6 +149,7 @@ function stopReel(index){
   $('stop'+index).disabled = true;
   if(spinning.every(s=>!s)){
     checkResult();
+    endTurn(); // ← ターン終了処理
   }
 }
 
@@ -160,6 +162,25 @@ function checkResult(){
     showToast('🎉 あたり！ +100 コイン');
   }
 }
+
+// === ここから追加 ===
+function endTurn(){
+  // マナ +1
+  mana++;
+  $('mana').textContent = mana;
+
+  // 手札 +1
+  const hand = $('hand');
+  const card = document.createElement('div');
+  card.className = 'card';
+  const img = document.createElement('img');
+  img.src = IMAGES.cards[randInt(IMAGES.cards.length)];
+  card.appendChild(img);
+  hand.appendChild(card);
+
+  showToast('✨ ターン終了：マナ+1／手札+1');
+}
+// === ここまで追加 ===
 
 function showToast(msg){
   const div = document.createElement('div');
