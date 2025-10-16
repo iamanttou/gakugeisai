@@ -3,309 +3,328 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot Clicker Pastel Edition</title>
+<title>Slot Clicker Pastel UI</title>
 <style>
-body {
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-  color: #333;
-  font-family: "Segoe UI", sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
+:root{
+  --bg:#f7f7fb;
+  --panel:#ffffff;
+  --muted:#777;
+  --accent:#f76b6b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:Inter, system-ui, -apple-system, "Helvetica Neue", Arial;
+  color:#111;
+  display:flex;
+  justify-content:center;
+  padding:10px;
 }
 
-h1 {
-  margin-top: 10px;
-  font-size: 24px;
+/* main container */
+.container{
+  width:1200px;
+  max-width:100%;
+  display:flex;
+  gap:10px;
 }
 
-#main {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 95%;
-  height: 75vh;
-  gap: 20px;
+/* LEFT: SLOT PANEL */
+.left{
+  flex:2;
+  background:var(--panel);
+  border-radius:12px;
+  padding:10px;
+  box-shadow:0 6px 18px rgba(20,20,40,0.06);
 }
 
-/* ==== スロットエリア ==== */
-#slot-area {
-  flex: 2;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 8px;
-  aspect-ratio: 8 / 5;
-  background: #fff;
-  border-radius: 16px;
-  border: 4px solid #80deea;
-  box-shadow: 0 0 20px #80deea;
-  padding: 10px;
-  transition: all 0.4s;
-}
-.cell {
-  border-radius: 8px;
-  overflow: hidden;
-}
-.cell img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.slot-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  width:100%;
 }
 
-/* ==== クリックボタン ==== */
-#click {
-  flex: 1;
-  width: 160px;
-  height: 160px;
-  background: url("images/click1.png") center/cover no-repeat;
-  border-radius: 50%;
-  box-shadow: 0 0 20px #ffcc80;
-  cursor: pointer;
-  transition: transform 0.1s;
-  margin-top: 60px;
+.cell{
+  aspect-ratio:8/5;
+  border:4px solid #ccc;
+  border-radius:8px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  transition: all 0.3s;
 }
-#click:active {
-  transform: scale(0.9);
+.cell img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+
+/* control buttons */
+.controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+button{
+  cursor:pointer;
+  border:0;
+  background:#222;
+  color:#fff;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:14px;
+}
+#spinBtn{background:var(--accent); font-weight:700; padding:8px 16px}
+
+/* HAND */
+.hand{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.card{
+  width:90px;
+  aspect-ratio:5/8;
+  border-radius:8px;
+  border:2px solid #ddd;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-direction:column;
+  font-size:12px;
+}
+.card img{width:100%;height:60%;object-fit:contain}
+.card p{margin:0;text-align:center}
+
+/* RIGHT: CLICKER + SKILLS */
+.right{
+  width:360px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.panel{
+  background:var(--panel);
+  padding:10px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(20,20,40,0.06);
+}
+.clicker-center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+#clickBtn{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  border:5px solid #ff9ab0;
+  background:#ffeef3;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .08s;
+}
+#clickBtn img{width:92%;height:92%;object-fit:contain;border-radius:50%}
+#clickBtn:active{transform:scale(.93)}
+
+/* Skills grid */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.skill-btn{
+  background:#cfe8ff;
+  border-radius:8px;
+  padding:6px;
+  border:1px solid #b6dbff;
+  cursor:pointer;
+  font-size:12px;
 }
 
-/* ==== ステータス ==== */
-#status {
-  margin: 10px;
-  font-size: 16px;
-  text-align: center;
+/* STATUS */
+.status{
+  display:flex;
+  gap:12px;
+  margin-top:6px;
+  font-size:14px;
+  justify-content:center;
 }
 
-/* ==== 手札 ==== */
-#hand {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  max-width: 90%;
-  margin-top: 6px;
-}
-.card {
-  width: 100px;
-  aspect-ratio: 5 / 8;
-  border-radius: 12px;
-  background: #fff;
-  border: 2px solid #ddd;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: all 0.2s;
-  overflow: hidden;
-  text-align: center;
-}
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 14px rgba(0,0,0,0.2);
-}
-.card img {
-  width: 100%;
-  height: 60%;
-  object-fit: cover;
-  border-bottom: 2px solid #eee;
-}
-.card h3 {
-  font-size: 0.9rem;
-  margin: 4px 0 0;
-}
-.card p {
-  font-size: 0.75rem;
-  margin: 0;
+/* toast */
+.toast{
+  position:fixed;right:18px;top:18px;
+  background:#111;color:#fff;padding:6px 10px;border-radius:6px;
+  opacity:0.9;
+  box-shadow:0 6px 20px rgba(0,0,0,0.25);
 }
 
-/* ==== スキルツリー ==== */
-#skill-tree {
-  position: absolute;
-  right: 20px;
-  top: 80px;
-  width: 250px;
-  height: 60vh;
-  background: rgba(255,255,255,0.8);
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  overflow-y: auto;
-  padding: 10px;
-  font-size: 0.85rem;
+/* responsive */
+@media(max-width:1100px){
+  .container{flex-direction:column;width:100%}
+  .right{width:100%}
 }
-.skill {
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  padding: 6px;
-  margin-bottom: 8px;
-  text-align: center;
-  background: #fafafa;
-  transition: 0.2s;
-}
-.skill:hover {
-  background: #e1f5fe;
-  border-color: #81d4fa;
-  transform: scale(1.03);
-}
-
 </style>
 </head>
 <body>
-<h1>🎰 Slot Clicker Pastel Edition</h1>
+<div class="container">
+  <div class="left panel">
+    <div class="slot-grid" id="slotGrid">
+      <div class="cell" id="cell0"></div>
+      <div class="cell" id="cell1"></div>
+      <div class="cell" id="cell2"></div>
+      <div class="cell" id="cell3"></div>
+      <div class="cell" id="cell4"></div>
+      <div class="cell" id="cell5"></div>
+      <div class="cell" id="cell6"></div>
+      <div class="cell" id="cell7"></div>
+      <div class="cell" id="cell8"></div>
+    </div>
 
-<div id="main">
-  <div id="slot-area"></div>
-  <div id="click"></div>
+    <div class="controls">
+      <button id="spinBtn">スピン</button>
+    </div>
+
+    <div class="status">
+      <div>💰 <span id="coin">0</span></div>
+      <div>🔮 <span id="mana">5</span></div>
+    </div>
+
+    <div class="hand" id="hand"></div>
+  </div>
+
+  <div class="right">
+    <div class="panel clicker">
+      <div class="clicker-center">
+        <div id="clickBtn"><img src="images/click1.png" alt="click"></div>
+      </div>
+    </div>
+
+    <div class="panel skills">
+      <div><strong>スキルツリー</strong></div>
+      <div class="skills-grid" id="skillsGrid"></div>
+    </div>
+  </div>
 </div>
 
-<div id="status">💰コイン: <span id="coins">0</span>　🔮マナ: <span id="mana">5</span></div>
-<div id="hand"></div>
-
-<div id="skill-tree">
-  <h3>🧩 スキルツリー</h3>
-  <div class="skill">💫 スピン効率アップ</div>
-  <div class="skill">🪄 マナ獲得+1/ターン</div>
-  <div class="skill">💰 コインボーナス強化</div>
-  <div class="skill">🎴 手札上限+1</div>
-  <div class="skill">🔥 ラックブースト上昇</div>
-</div>
+<div id="toastHolder"></div>
 
 <script>
-const slotArea = document.getElementById("slot-area");
-const click = document.getElementById("click");
-const coinsEl = document.getElementById("coins");
+const slotImgs = Array.from({length:9}, (_,i)=>`images/slot${i+1}.png`);
+const cardImgs = Array.from({length:7}, (_,i)=>`images/card${i+1}.png`);
+const clickImgs = Array.from({length:1},()=>`images/click1.png`);
+
+const slotCells = Array.from({length:9}, (_,i)=>document.getElementById(`cell${i}`));
+const coinEl = document.getElementById("coin");
 const manaEl = document.getElementById("mana");
 const handEl = document.getElementById("hand");
+const spinBtn = document.getElementById("spinBtn");
+const clickBtn = document.getElementById("clickBtn");
 
-let coins = 0;
+let coin = 0;
 let mana = 5;
-let turn = 0;
+let hand = [];
 let luck = 50;
 
+// カード定義
 const CARDS = [
-  { name: "リロール", cost: 2, effect: "リールを選択して再スピン", img: "images/card1.png" },
-  { name: "2倍", cost: 2, effect: "次の報酬が2倍", img: "images/card2.png" },
-  { name: "ドロー", cost: 3, effect: "手札+1", img: "images/card3.png" },
-  { name: "保険", cost: 2, effect: "スロット外れでも損失なし", img: "images/card4.png" },
-  { name: "スーパースピン", cost: 3, effect: "ラック値+30", img: "images/card5.png" },
-  { name: "マナ回復", cost: 1, effect: "マナ+3", img: "images/card6.png" },
-  { name: "コイン+", cost: 1, effect: "コイン+10", img: "images/card7.png" },
+  {name:"リロール", cost:2, effect:"リールを選択して再スピン", img:cardImgs[0]},
+  {name:"2倍", cost:2, effect:"次の報酬が2倍", img:cardImgs[1]},
+  {name:"ドロー", cost:3, effect:"手札+1", img:cardImgs[2]},
+  {name:"保険", cost:2, effect:"スロット外れでも損失なし", img:cardImgs[3]},
+  {name:"スーパースピン", cost:3, effect:"ラック値+30", img:cardImgs[4]},
+  {name:"マナ回復", cost:1, effect:"マナ+3", img:cardImgs[5]},
+  {name:"コイン+", cost:1, effect:"コイン+10", img:cardImgs[6]},
 ];
 
-let hand = [];
-
-function initSlot() {
-  for (let i = 0; i < 9; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
+function initSlots(){
+  slotCells.forEach((cell,i)=>{
     const img = document.createElement("img");
-    img.src = `images/slot${(i % 9) + 1}.png`;
+    img.src = slotImgs[i%9];
     cell.appendChild(img);
-    slotArea.appendChild(cell);
-  }
+  });
 }
 
-function drawCard() {
-  if (hand.length < 7) {
-    const card = CARDS[Math.floor(Math.random() * CARDS.length)];
+function drawCard(){
+  if(hand.length<7){
+    const card = CARDS[Math.floor(Math.random()*CARDS.length)];
     hand.push(card);
     renderHand();
   }
 }
 
-function renderHand() {
-  handEl.innerHTML = "";
-  hand.forEach((c, i) => {
+function renderHand(){
+  handEl.innerHTML="";
+  hand.forEach((c,i)=>{
     const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${c.img}" alt="${c.name}">
-      <h3>${c.name}</h3>
-      <p>コスト:${c.cost}</p>
-      <p>${c.effect}</p>
-    `;
-    div.onclick = () => useCard(i);
+    div.className="card";
+    div.innerHTML=`<img src="${c.img}"><p>${c.name}</p><p>コスト:${c.cost}</p><p>${c.effect}</p>`;
+    div.onclick = ()=> useCard(i);
     handEl.appendChild(div);
   });
 }
 
-function useCard(index) {
+function useCard(index){
   const c = hand[index];
-  if (mana < c.cost) return alert("マナが足りない！");
+  if(mana<c.cost){alert("マナ不足"); return;}
   mana -= c.cost;
   manaEl.textContent = mana;
-
-  switch (c.name) {
-    case "リロール":
-      rerollSlot();
-      break;
-    case "2倍":
-      coins += 50;
-      break;
-    case "ドロー":
-      drawCard();
-      break;
-    case "保険":
-      // TODO: 保険処理
-      break;
-    case "スーパースピン":
-      luck += 30;
-      break;
-    case "マナ回復":
-      mana += 3;
-      break;
-    case "コイン+":
-      coins += 10;
-      break;
+  // 効果適用
+  switch(c.name){
+    case "リロール": reroll(); break;
+    case "2倍": coin *= 2; break;
+    case "ドロー": drawCard(); break;
+    case "保険": break;
+    case "スーパースピン": luck+=30; updateLuck(); break;
+    case "マナ回復": mana+=3; manaEl.textContent=mana; break;
+    case "コイン+": coin+=10; break;
   }
-
-  coinsEl.textContent = coins;
-  manaEl.textContent = mana;
-  hand.splice(index, 1);
+  coinEl.textContent=coin;
+  hand.splice(index,1);
   renderHand();
 }
 
-function rerollSlot() {
-  const imgs = slotArea.querySelectorAll(".cell img");
-  const idx = Math.floor(Math.random() * imgs.length);
-  imgs[idx].src = `images/slot${Math.floor(Math.random() * 9) + 1}.png`;
+function reroll(){
+  const idx = Math.floor(Math.random()*9);
+  slotCells[idx].firstChild.src = slotImgs[Math.floor(Math.random()*9)];
 }
 
-click.onclick = () => spin();
-
-function spin() {
-  coins += Math.floor(Math.random() * 20) + 10;
-  coinsEl.textContent = coins;
-  nextTurn();
-}
-
-function nextTurn() {
-  turn++;
-  mana++;
-  drawCard();
-  luck = Math.floor(Math.random() * 100) + (luck > 100 ? luck - 100 : 0);
-  updateGlow(luck);
-}
-
-function updateGlow(luck) {
-  if (luck > 100) {
-    slotArea.style.borderColor = "#ff00ff";
-    slotArea.style.boxShadow = "0 0 20px #ff00ff, 0 0 40px #00ffff";
-  } else if (luck > 70) {
-    slotArea.style.borderColor = "#ff4081";
-    slotArea.style.boxShadow = "0 0 20px #ff4081";
-  } else if (luck > 30) {
-    slotArea.style.borderColor = "#69f0ae";
-    slotArea.style.boxShadow = "0 0 20px #69f0ae";
+function updateLuck(){
+  if(luck>100){
+    slotCells.forEach(c=>c.style.borderColor="#ff00ff");
+  } else if(luck>70){
+    slotCells.forEach(c=>c.style.borderColor="#ff4081");
+  } else if(luck>30){
+    slotCells.forEach(c=>c.style.borderColor="#69f0ae");
   } else {
-    slotArea.style.borderColor = "#448aff";
-    slotArea.style.boxShadow = "0 0 20px #448aff";
+    slotCells.forEach(c=>c.style.borderColor="#448aff");
   }
 }
 
-initSlot();
+spinBtn.onclick = spin;
+
+function spin(){
+  // スロットをランダムに変更
+  slotCells.forEach(c=>{
+    c.firstChild.src = slotImgs[Math.floor(Math.random()*9)];
+  });
+  coin += Math.floor(Math.random()*20)+5;
+  coinEl.textContent = coin;
+  mana++;
+  manaEl.textContent = mana;
+  drawCard();
+  luck = Math.floor(Math.random()*100)+(luck>100?luck-100:0);
+  updateLuck();
+}
+
+clickBtn.onclick = ()=> coin += 1; coinEl.textContent = coin;
+
+initSlots();
 drawCard();
-updateGlow(luck);
+updateLuck();
 </script>
 </body>
 </html>
