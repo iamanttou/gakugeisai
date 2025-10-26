@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Card Slot Clicker 1to9</title>
+<title>Slot Clicker Pastel UI</title>
 <style>
 :root{
   --bg:#f7f7fb;
@@ -189,7 +189,7 @@ button{
     </div>
 
     <div class="status">
-      <div>💰 <span id="coin">0</span></div>
+      <div>💰 <span id="coin">100</span></div>
       <div>🔮 <span id="mana">5</span></div>
     </div>
 
@@ -210,12 +210,9 @@ button{
   </div>
 </div>
 
-<div id="toastHolder"></div>
-
 <script>
-const slotImgs = Array.from({length:9}, (_,i)=>`images/slot${i+1}.png`);
+const slotImgs = Array.from({length:6}, (_,i)=>`images/slot${i+1}.png`);
 const cardImgs = Array.from({length:7}, (_,i)=>`images/card${i+1}.png`);
-const clickImgs = Array.from({length:1},()=>`images/click1.png`);
 
 const slotCells = Array.from({length:9}, (_,i)=>document.getElementById(`cell${i}`));
 const coinEl = document.getElementById("coin");
@@ -224,7 +221,7 @@ const handEl = document.getElementById("hand");
 const spinBtn = document.getElementById("spinBtn");
 const clickBtn = document.getElementById("clickBtn");
 
-let coin = 0;
+let coin = 100;
 let mana = 5;
 let hand = [];
 let luck = 50;
@@ -243,7 +240,7 @@ const CARDS = [
 function initSlots(){
   slotCells.forEach((cell,i)=>{
     const img = document.createElement("img");
-    img.src = slotImgs[i%9];
+    img.src = slotImgs[Math.floor(Math.random()*slotImgs.length)];
     cell.appendChild(img);
   });
 }
@@ -272,14 +269,13 @@ function useCard(index){
   if(mana<c.cost){alert("マナ不足"); return;}
   mana -= c.cost;
   manaEl.textContent = mana;
-  // 効果適用
   switch(c.name){
     case "リロール": reroll(); break;
     case "2倍": coin *= 2; break;
     case "ドロー": drawCard(); break;
     case "保険": break;
-    case "スーパースピン": luck+=30; updateLuck(); break;
-    case "マナ回復": mana+=3; manaEl.textContent=mana; break;
+    case "スーパースピン": luck+=30; break;
+    case "マナ回復": mana+=3; break;
     case "コイン+": coin+=10; break;
   }
   coinEl.textContent=coin;
@@ -289,42 +285,60 @@ function useCard(index){
 
 function reroll(){
   const idx = Math.floor(Math.random()*9);
-  slotCells[idx].firstChild.src = slotImgs[Math.floor(Math.random()*9)];
+  slotCells[idx].firstChild.src = slotImgs[Math.floor(Math.random()*slotImgs.length)];
 }
 
-function updateLuck(){
-  if(luck>100){
-    slotCells.forEach(c=>c.style.borderColor="#ff00ff");
-  } else if(luck>70){
-    slotCells.forEach(c=>c.style.borderColor="#ff4081");
-  } else if(luck>30){
-    slotCells.forEach(c=>c.style.borderColor="#69f0ae");
-  } else {
-    slotCells.forEach(c=>c.style.borderColor="#448aff");
+function checkWin(){
+  const imgs = slotCells.map(c=>c.firstChild.src);
+  const lines = [
+    [0,1,2],[3,4,5],[6,7,8], // 横
+    [0,3,6],[1,4,7],[2,5,8], // 縦
+    [0,4,8],[2,4,6]          // 斜め
+  ];
+  for(let line of lines){
+    const [a,b,c] = line;
+    if(imgs[a]===imgs[b] && imgs[b]===imgs[c]){
+      return true;
+    }
   }
+  return false;
 }
-
-spinBtn.onclick = spin;
 
 function spin(){
-  // スロットをランダムに変更
+  if(coin<20){alert("コイン不足！"); return;}
+  coin -= 20;
   slotCells.forEach(c=>{
-    c.firstChild.src = slotImgs[Math.floor(Math.random()*9)];
+    c.firstChild.src = slotImgs[Math.floor(Math.random()*slotImgs.length)];
   });
-  coin += Math.floor(Math.random()*20)+5;
+
+  if(checkWin()){
+    coin += 40;
+    showToast("🎉 揃った！ +40コイン");
+  } else {
+    showToast("😢 はずれ... -20コイン");
+  }
+
   coinEl.textContent = coin;
   mana++;
   manaEl.textContent = mana;
   drawCard();
-  luck = Math.floor(Math.random()*100)+(luck>100?luck-100:0);
-  updateLuck();
 }
 
-clickBtn.onclick = ()=> coin += 1; coinEl.textContent = coin;
+function showToast(msg){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1500);
+}
+
+clickBtn.onclick = ()=>{
+  coin++;
+  coinEl.textContent = coin;
+}
 
 initSlots();
 drawCard();
-updateLuck();
 </script>
 </body>
 </html>
