@@ -8,150 +8,155 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: "Arial";
   background: #f5f8ff;
+  font-family: "Arial";
   display: flex;
   justify-content: center;
 }
-
 .wrapper {
-  width: 1200px;
+  width: 1180px;
   padding: 20px;
   display: grid;
   grid-template-columns: 720px 1fr;
   gap: 20px;
 }
 
-/* =========================
-   スロット（サイズだけ修正）
-   =========================*/
-
+/* ==========================
+   スロット（UI前のまま/セル小さく）
+   ========================== */
 .slot-box {
-  background: #ffffff;
+  background: #fff;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   text-align: center;
 }
 
 .slot-container {
   width: 100%;
-  margin: 0 auto 20px auto;
+  height: 260px; /* ←セル縮小で枠内配置 */
   display: flex;
   justify-content: center;
-  gap: 12px;
-
-  /* セル縮小のため高さを抑える */
-  height: 260px;
+  gap: 15px;
+  margin-bottom: 16px;
 }
 
 .slot-reel {
-  width: 120px;        /* 横はキープ */
-  height: 100%;        /* ボックス内で完結 */
+  width: 120px;
+  height: 100%;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #e7eeff;
-  border: 3px solid #d0dbff;
+  border: 3px solid #cfd8ff;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
-
 .cell {
   width: 100%;
-  height: 80px; /* ←大きすぎを調整（以前は100〜120） */
+  height: 80px; /* ←小さく調整！ */
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .cell img {
   width: 80%;
   height: auto;
-  object-fit: contain;
 }
 
-/* ボタン */
+/* ボタン類（前のUIそのまま） */
 .button-area {
-  margin-top: 10px;
   display: flex;
   justify-content: center;
   gap: 10px;
 }
-
 button {
   padding: 10px 20px;
   border-radius: 12px;
   border: none;
-  cursor: pointer;
-  font-size: 16px;
   background: #8eaaff;
   color: white;
+  font-size: 16px;
   font-weight: bold;
+  cursor: pointer;
+}
+button:hover { background: #7696ff; }
+
+/* ==========================
+   Click強化（UI前のまま）
+   ========================== */
+.click-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.click-upgrade-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #ff89a5;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+.click-upgrade-btn:hover {
+  background: #ff6d92;
 }
 
-button:hover {
-  background: #7697ff;
-}
-
-/* =========================
-   下記は既存のUI → 一切変更なし
-   =========================*/
-
-.status-box,
-.card-box,
-.skill-box {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+/* ==========================
+   手札・スキルツリー（前のUIそのまま）
+   ========================== */
+.status-box, .card-box, .skill-box {
+  background: #fff;
+  padding: 16px;
   margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 .card-area {
   display: flex;
   gap: 10px;
 }
-
 .card {
   width: 90px;
   height: 140px;
   border-radius: 12px;
-  background: #e8efff;
+  background: #eef2ff;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-.card img {
-  width: 90%;
-  height: auto;
-}
+.card img { width: 90%; height: auto; }
 
 .skill-tree {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
 }
-
 .skill-node {
-  padding: 15px;
-  background: #e7f6ff;
-  border-radius: 14px;
+  background: #e3f4ff;
+  padding: 12px;
+  border-radius: 12px;
   text-align: center;
   font-size: 14px;
   font-weight: bold;
 }
+
 </style>
 </head>
 
 <body>
 <div class="wrapper">
 
-  <!--=============================-->
-  <!--          スロット           -->
-  <!--=============================-->
+<!-- ===================
+     スロット
+     =================== -->
+<div>
   <div class="slot-box">
+    <h2>スロット</h2>
 
     <div class="slot-container">
       <div class="slot-reel" id="reel1"></div>
@@ -165,89 +170,82 @@ button:hover {
       <button id="stop2">停止2</button>
       <button id="stop3">停止3</button>
     </div>
-
   </div>
 
-  <!--=============================-->
-  <!--       ステータス / 手札      -->
-  <!--=============================-->
-  <div>
-    <div class="status-box">
-      <h2>ステータス</h2>
-      <div>コイン: <span id="coin">100</span></div>
-      <div>マナ: <span id="mana">0</span></div>
-      <div>ターン: <span id="turn">1</span></div>
-    </div>
-
-    <div class="card-box">
-      <h2>手札</h2>
-      <div class="card-area" id="handArea"></div>
-    </div>
-
-    <div class="skill-box">
-      <h2>スキルツリー</h2>
-      <div class="skill-tree">
-        <div class="skill-node">マナ効率</div>
-        <div class="skill-node">ラック強化</div>
-        <div class="skill-node">コインUP</div>
-        <div class="skill-node">リロール強化</div>
-        <div class="skill-node">マナ循環</div>
-        <div class="skill-node">幸運連鎖</div>
-      </div>
-    </div>
+  <!-- ===================
+       Click 強化（前のUI）
+       =================== -->
+  <div class="click-box">
+    <h3>Click強化</h3>
+    現在レベル: <span id="clickLevel">1</span><br>
+    強化コスト: <span id="clickCost">+5</span><br>
+    <button class="click-upgrade-btn" id="upgradeClick">強化する</button>
   </div>
 </div>
 
-<script>
-/* =========================
-   ここからJSは完全に元のまま
-   スロット関係のサイズ以外は不変
-   ========================= */
+<!-- ===================
+     ステータス / カード / スキル
+     =================== -->
+<div>
+  <div class="status-box">
+    <h2>ステータス</h2>
+    コイン: <span id="coin">100</span><br>
+    マナ: <span id="mana">0</span><br>
+    ターン: <span id="turn">1</span>
+  </div>
 
-/* リール画像 */
+  <div class="card-box">
+    <h2>手札</h2>
+    <div class="card-area" id="handArea"></div>
+  </div>
+
+  <div class="skill-box">
+    <h2>スキルツリー</h2>
+    <div class="skill-tree" id="skillTree"></div>
+  </div>
+</div>
+
+</div><!-- wrapper end -->
+
+
+<script>
+/* ===============================
+   スロット画像（前のまま）
+   =============================== */
 const symbols = [
-  "images/slot1.png",
-  "images/slot2.png",
-  "images/slot3.png",
-  "images/slot4.png",
-  "images/slot5.png",
-  "images/slot6.png",
-  "images/slot7.png",
-  "images/slot8.png",
-  "images/slot9.png"
+  "images/slot1.png","images/slot2.png","images/slot3.png",
+  "images/slot4.png","images/slot5.png","images/slot6.png",
+  "images/slot7.png","images/slot8.png","images/slot9.png"
 ];
+
+/* 初期処理 */
+function renderReel(reelID) {
+  const reel = document.getElementById(reelID);
+  reel.innerHTML = "";
+  for (let i = 0; i < 3; i++) {
+    const c = document.createElement("div");
+    c.className = "cell";
+    const img = document.createElement("img");
+    img.src = symbols[Math.floor(Math.random()*symbols.length)];
+    c.appendChild(img);
+    reel.appendChild(c);
+  }
+}
+renderReel("reel1");
+renderReel("reel2");
+renderReel("reel3");
 
 let spinning = false;
 let intervals = {};
 let stopped = {1:false,2:false,3:false};
 
-/* リール生成（3×3） */
-function renderReel(reelID) {
-  const reel = document.getElementById(reelID);
-  reel.innerHTML = "";
-  for (let i = 0; i < 3; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    const img = document.createElement("img");
-    img.src = symbols[Math.floor(Math.random() * symbols.length)];
-    cell.appendChild(img);
-    reel.appendChild(cell);
-  }
-}
-
-renderReel("reel1");
-renderReel("reel2");
-renderReel("reel3");
-
 /* スピン開始 */
 document.getElementById("spinButton").onclick = () => {
   if (spinning) return;
-
-  let coin = Number(document.getElementById("coin").innerText);
+  let coin = Number(coinEl.innerText);
   if (coin < 20) return;
 
-  document.getElementById("coin").innerText = coin - 20;
-
+  coinEl.innerText = coin - 20;
   spinning = true;
   stopped = {1:false,2:false,3:false};
 
@@ -262,14 +260,15 @@ function startSpin(reelID) {
   }, 80);
 }
 
-/* 停止ボタン */
-document.getElementById("stop1").onclick = () => stopReel("reel1",1);
-document.getElementById("stop2").onclick = () => stopReel("reel2",2);
-document.getElementById("stop3").onclick = () => stopReel("reel3",3);
+/* 停止処理 */
+document.getElementById("stop1").onclick = ()=> stopReel("reel1",1);
+document.getElementById("stop2").onclick = ()=> stopReel("reel2",2);
+document.getElementById("stop3").onclick = ()=> stopReel("reel3",3);
 
 function stopReel(reelID, n) {
   if (!spinning) return;
   if (stopped[n]) return;
+
   clearInterval(intervals[reelID]);
   stopped[n] = true;
 
@@ -279,7 +278,7 @@ function stopReel(reelID, n) {
   }
 }
 
-/* 当たり判定 */
+/* 判定＋報酬 */
 function checkWin() {
   const r1 = [...document.getElementById("reel1").children];
   const r2 = [...document.getElementById("reel2").children];
@@ -290,22 +289,75 @@ function checkWin() {
     [r1[1].children[0].src, r2[1].children[0].src, r3[1].children[0].src],
     [r1[2].children[0].src, r2[2].children[0].src, r3[2].children[0].src]
   ];
-
   let win = false;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++)
     if (grid[i][0] === grid[i][1] && grid[i][1] === grid[i][2]) win = true;
-  }
 
   if (grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) win = true;
   if (grid[0][2] === grid[1][1] && grid[1][1] === grid[2][0]) win = true;
 
   if (win) {
-    let coin = Number(document.getElementById("coin").innerText);
-    document.getElementById("coin").innerText = coin + 40;
+    coinEl.innerText = Number(coinEl.innerText) + 40;
   }
 }
-</script>
 
+/* ===============================
+   Click強化（コスト同期）
+   =============================== */
+let clickLevel = 1;
+let clickCost = 5;
+
+const clickLvEl = document.getElementById("clickLevel");
+const clickCostEl = document.getElementById("clickCost");
+
+function updateClickUI() {
+  clickLvEl.textContent = clickLevel;
+  clickCostEl.textContent = `+${clickCost}`;
+}
+updateClickUI();
+
+document.getElementById("upgradeClick").onclick = () => {
+  let mana = Number(manaEl.innerText);
+  if (mana < clickCost) return;
+
+  manaEl.innerText = mana - clickCost;
+  clickLevel++;
+  clickCost += 3; // 成長
+
+  updateClickUI();
+};
+
+/* ===============================
+   スキルツリー（コスト同期）
+   =============================== */
+const skills = [
+  { id: "manaEff", name: "マナ効率化", cost: 8 },
+  { id: "luckUp", name: "強運体質", cost: 10 },
+  { id: "coinUp", name: "収入UP", cost: 12 },
+  { id: "rerollEx", name: "リロール強化", cost: 15 },
+  { id: "manaLoop", name: "マナ循環", cost: 18 },
+  { id: "luckChain", name: "幸運連鎖", cost: 20 }
+];
+
+const skillTreeEl = document.getElementById("skillTree");
+
+skills.forEach(skill => {
+  const node = document.createElement("div");
+  node.className = "skill-node";
+  node.innerHTML = `
+    ${skill.name}<br>
+    <span class="cost">+${skill.cost}</span>
+  `;
+  skillTreeEl.appendChild(node);
+});
+
+/* ===============================
+   ステータスEl参照
+   =============================== */
+const coinEl = document.getElementById("coin");
+const manaEl = document.getElementById("mana");
+
+</script>
 </body>
 </html>
