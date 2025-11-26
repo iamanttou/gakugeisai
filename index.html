@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Card Slot Clicker 1to9 verβ1.0</title>
+<title>Card Slot Clicker 1to9</title>
 <style>
   body {
     background: #fafafa;
@@ -95,8 +95,8 @@
   <div class="panel">
     <h3>Click</h3>
     <img id="clickImg" class="click-img" src="github/images/click1" />
-    <p>クリック収入 : <span id="clickLv">1</span> / 回</p>
-    <p>自動クリック : <span id="autoClick">1</span> / 秒</p>
+    <p>クリック収入 : <span id="clickLv">0</span> / 回</p>
+    <p>自動クリック : <span id="autoClick">0</span> / 秒</p>
   </div>
 
   <!-- スキルツリー -->
@@ -117,12 +117,11 @@ const slotImages = [
 // ステータス
 let coin = 100;
 let mana = 0;
-let clickLv = 1;
-let clickCost = 2;
-let autoClick = 1;
+let clickLv = 0;
+let clickCost = 3;
+let autoClick = 0;
 let autoClickCost = 3;
 
-// UI更新
 function updateUI(){
  document.getElementById("coin").textContent = coin;
  document.getElementById("mana").textContent = mana;
