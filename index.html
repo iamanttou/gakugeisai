@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Card Slot Clicker 1to9 ver.β0</title>
+<title>Card Slot Clicker 1to9 ver.β1<\/title>
 <style>
   body {
     background: #fafafa;
@@ -148,11 +148,35 @@ function drawCard(){
 function renderHand(){
   const ul = document.getElementById("cardList");
   ul.innerHTML = "";
-  hand.forEach(c=>{
+  hand.forEach((c,idx)=>{
     const li = document.createElement("li");
-    li.textContent = c;
+    li.textContent = c + "（使用）";
+    li.style.cursor = "pointer";
+
+    // カード使用処理
+    li.onclick = ()=>{
+      useCard(c);
+      hand.splice(idx,1);
+      renderHand();
+    };
+
     ul.appendChild(li);
   });
+});
+}
+
+// カード効果
+function useCard(card){
+  switch(card){
+    case "card1": coin += 10; break;
+    case "card2": mana += 2; break;
+    case "card3": coin += 20; break;
+    case "card4": mana = Math.max(mana-2,0); break;
+    case "card5": coin += 5; mana += 1; break;
+    case "card6": coin = Math.max(coin-10,0); break;
+    case "card7": coin += 15; break;
+  }
+  updateUI();
 }
 
 // 毎ターン処理
