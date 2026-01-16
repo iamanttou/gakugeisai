@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Card Slot Clicker 1to9 ver.β2</title>
-<link rel="icon" href="images/slot1" />
+<title>Card Slot Clicker 1to9 ver.β3</title>
+<link rel="icon" href="images/slot1.png" />
 <style>
 body{margin:0;padding:20px;font-family:Segoe UI,sans-serif;background:#fafafa;display:flex;gap:20px}
 .left-area{width:60%;display:flex;flex-direction:column;gap:16px}
@@ -15,69 +15,90 @@ body{margin:0;padding:20px;font-family:Segoe UI,sans-serif;background:#fafafa;di
 .slot-buttons{display:flex;gap:8px;margin-top:8px}
 .click-img{width:70%;cursor:pointer}
 .cards{display:flex;gap:6px;flex-wrap:wrap}
-.card{width:70px;aspect-ratio:5/8;background-size:cover;border-radius:8px;cursor:pointer}
+.card{width:70px;aspect-ratio:5/8;background-size:cover;background-position:center;border-radius:8px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="left-area">
-<div class="panel">
-<h3>スロット</h3>
-<div id="slotGrid" class="slot-grid"></div>
-<div class="slot-buttons">
-<button id="spinBtn">回す -20</button>
-<button id="stop1">①停止</button>
-<button id="stop2">②停止</button>
-<button id="stop3">③停止</button>
+  <div class="panel">
+    <h3>スロット</h3>
+    <div id="slotGrid" class="slot-grid"></div>
+    <div class="slot-buttons">
+      <button id="spinBtn">回す -20</button>
+      <button id="stop1">①停止</button>
+      <button id="stop2">②停止</button>
+      <button id="stop3">③停止</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>ステータス</h3>
+    <p>コイン: <span id="coin">100</span></p>
+    <p>マナ: <span id="mana">0</span></p>
+  </div>
+
+  <div class="panel">
+    <h3>手札</h3>
+    <div id="cardList" class="cards"></div>
+  </div>
 </div>
-</div>
-<div class="panel">
-<h3>ステータス</h3>
-<p>コイン: <span id="coin">100</span></p>
-<p>マナ: <span id="mana">0</span></p>
-</div>
-<div class="panel">
-<h3>手札</h3>
-<div id="cardList" class="cards"></div>
-</div>
-</div>
+
 <div class="right-area">
-<div class="panel">
-<h3>Click</h3>
-<img id="clickImg" class="click-img" src="images/click1" />
-<p>Click Lv: <span id="clickLv">0</span></p>
-<p>Auto Click: <span id="autoClick">0</span>/秒</p>
+  <div class="panel">
+    <h3>Click</h3>
+    <img id="clickImg" class="click-img" src="images/click1.png" />
+    <p>Click Lv: <span id="clickLv">0</span></p>
+    <p>Auto Click: <span id="autoClick">0</span> / 秒</p>
+  </div>
+
+  <div class="panel">
+    <h3>スキルツリー</h3>
+    <button id="upClick">Click強化 (マナ3)</button>
+    <button id="upAuto">Auto強化 (マナ3)</button>
+  </div>
 </div>
-<div class="panel">
-<h3>スキルツリー</h3>
-<button id="upClick">Click強化 (-マナ)</button>
-<button id="upAuto">Auto強化 (-マナ)</button>
-</div>
-</div>
+
 <script>
-const slotImages=[1,2,3,4,5,6,7,8,9].map(n=>`images/slot${n}`)
-const cardImages=[1,2,3,4,5,6,7].map(n=>`images/card${n}`)
-let coin=100,mana=0,clickLv=0,autoClick=0
+const slotImages = Array.from({length:9},(_,i)=>`images/slot${i+1}.png`)
+const cardImages = Array.from({length:7},(_,i)=>`images/card${i+1}.png`)
+
+let coin=100, mana=0, clickLv=0, autoClick=0
 let spinning=[false,false,false]
 let reel=[[],[],[]]
 let hand=[]
-function update(){coinEl.textContent=coin;manaEl.textContent=mana;clickLvEl.textContent=clickLv;autoClickEl.textContent=autoClick}
-const coinEl=coin;const manaEl=mana
+
+const coinEl=document.getElementById('coin')
+const manaEl=document.getElementById('mana')
 const clickLvEl=document.getElementById('clickLv')
 const autoClickEl=document.getElementById('autoClick')
-function initSlot(){slotGrid.innerHTML='';for(let i=0;i<3;i++){reel[i]=[];for(let j=0;j<3;j++){const d=document.createElement('div');d.className='slot-cell';slotGrid.appendChild(d);reel[i].push(d)}}}
+
+function update(){coinEl.textContent=coin;manaEl.textContent=mana;clickLvEl.textContent=clickLv;autoClickEl.textContent=autoClick}
+
+const slotGrid=document.getElementById('slotGrid')
+function initSlot(){slotGrid.innerHTML='';for(let i=0;i<3;i++){reel[i]=[];for(let j=0;j<3;j++){const d=document.createElement('div');d.className='slot-cell';d.style.backgroundImage=`url(${slotImages[Math.floor(Math.random()*9)]})`;slotGrid.appendChild(d);reel[i].push(d)}}}
 initSlot()
+
 function roll(i){spinning[i]=true;(function loop(){if(!spinning[i])return;reel[i].forEach(c=>c.style.backgroundImage=`url(${slotImages[Math.floor(Math.random()*9)]})`);requestAnimationFrame(loop)})()}
 function stop(i){spinning[i]=false;if(spinning.every(v=>!v))endTurn()}
+
 function endTurn(){mana++;drawCard();checkReward();update()}
 function checkReward(){const m=reel.map(r=>r[1].style.backgroundImage);if(m[0]&&m[0]===m[1]&&m[1]===m[2])coin+=40}
+
+const cardList=document.getElementById('cardList')
 function drawCard(){if(hand.length>=7)return;const i=Math.floor(Math.random()*7);hand.push(i);renderCards()}
 function renderCards(){cardList.innerHTML='';hand.forEach((i,idx)=>{const d=document.createElement('div');d.className='card';d.style.backgroundImage=`url(${cardImages[i]})`;d.onclick=()=>{useCard(i);hand.splice(idx,1);renderCards()};cardList.appendChild(d)})}
+
 function useCard(i){if(i===0)coin+=10;if(i===1)mana+=2;if(i===2)coin+=20;if(i===3)mana=Math.max(0,mana-2);if(i===4){coin+=5;mana+=1}if(i===5)coin=Math.max(0,coin-10);if(i===6)coin+=15;update()}
+
 spinBtn.onclick=()=>{if(coin<20)return;coin-=20;[0,1,2].forEach(roll);update()}
-stop1.onclick=()=>stop(0);stop2.onclick=()=>stop(1);stop3.onclick=()=>stop(2)
+stop1.onclick=()=>stop(0)
+stop2.onclick=()=>stop(1)
+stop3.onclick=()=>stop(2)
+
 clickImg.onclick=()=>{coin+=clickLv;update()}
 upClick.onclick=()=>{if(mana<3)return;mana-=3;clickLv+=Math.floor(clickLv/2)+1;update()}
 upAuto.onclick=()=>{if(mana<3)return;mana-=3;autoClick+=Math.floor(autoClick/2)+1;update()}
+
 setInterval(()=>{coin+=autoClick;update()},1000)
 update()
 </script>
