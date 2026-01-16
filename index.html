@@ -3,104 +3,237 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Card Slot Clicker 1to9 ver.β3</title>
-<link rel="icon" href="images/slot1.png" />
+<title>Card Slot Clicker 1to9 ver.β4</title>
+
+<link rel="icon" href="images/slot1.png">
+
 <style>
-body{margin:0;padding:20px;font-family:Segoe UI,sans-serif;background:#fafafa;display:flex;gap:20px}
-.left-area{width:60%;display:flex;flex-direction:column;gap:16px}
-.right-area{width:40%;display:flex;flex-direction:column;gap:16px}
-.panel{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.slot-cell{aspect-ratio:8/5;border-radius:8px;background-size:cover;background-position:center}
-.slot-buttons{display:flex;gap:8px;margin-top:8px}
-.click-img{width:70%;cursor:pointer}
-.cards{display:flex;gap:6px;flex-wrap:wrap}
-.card{width:70px;aspect-ratio:5/8;background-size:cover;background-position:center;border-radius:8px;cursor:pointer}
+body{
+  background:#fafafa;
+  font-family:"Segoe UI",sans-serif;
+  display:flex;
+  gap:20px;
+  padding:20px;
+}
+.left-area{width:60%;display:flex;flex-direction:column;gap:20px;}
+.right-area{width:40%;display:flex;flex-direction:column;gap:20px;}
+.panel{
+  background:#fff;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+.slot-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.slot-cell{
+  aspect-ratio:8/5;
+  background-size:cover;
+  background-position:center;
+  border-radius:10px;
+}
+.slot-buttons{display:flex;gap:10px;margin-top:10px;}
+.click-img{width:70%;cursor:pointer;}
+.card-img{width:70px;cursor:pointer;}
 </style>
 </head>
+
 <body>
 <div class="left-area">
-  <div class="panel">
-    <h3>スロット</h3>
-    <div id="slotGrid" class="slot-grid"></div>
-    <div class="slot-buttons">
-      <button id="spinBtn">回す -20</button>
-      <button id="stop1">①停止</button>
-      <button id="stop2">②停止</button>
-      <button id="stop3">③停止</button>
-    </div>
-  </div>
 
-  <div class="panel">
-    <h3>ステータス</h3>
-    <p>コイン: <span id="coin">100</span></p>
-    <p>マナ: <span id="mana">0</span></p>
-  </div>
+<div class="panel">
+<h3>スロット</h3>
+<div id="slotGrid" class="slot-grid"></div>
+<div class="slot-buttons">
+<button id="spinBtn">回す(-20)</button>
+<button id="stop1">①停止</button>
+<button id="stop2">②停止</button>
+<button id="stop3">③停止</button>
+</div>
+</div>
 
-  <div class="panel">
-    <h3>手札</h3>
-    <div id="cardList" class="cards"></div>
-  </div>
+<div class="panel">
+<h3>ステータス</h3>
+<p>コイン: <span id="coin">100</span></p>
+<p>マナ: <span id="mana">0</span></p>
+</div>
+
+<div class="panel">
+<h3>手札</h3>
+<div id="cardList"></div>
+</div>
+
 </div>
 
 <div class="right-area">
-  <div class="panel">
-    <h3>Click</h3>
-    <img id="clickImg" class="click-img" src="images/click1.png" />
-    <p>Click Lv: <span id="clickLv">0</span></p>
-    <p>Auto Click: <span id="autoClick">0</span> / 秒</p>
-  </div>
 
-  <div class="panel">
-    <h3>スキルツリー</h3>
-    <button id="upClick">Click強化 (マナ3)</button>
-    <button id="upAuto">Auto強化 (マナ3)</button>
-  </div>
+<div class="panel">
+<h3>Click</h3>
+<img id="clickImg" class="click-img" src="images/click1.png">
+<p>クリック収入: <span id="clickLv">0</span></p>
+<p>自動クリック: <span id="autoClick">0</span></p>
+</div>
+
+<div class="panel">
+<h3>スキルツリー</h3>
+（未実装）
+</div>
+
 </div>
 
 <script>
-const slotImages = Array.from({length:9},(_,i)=>`images/slot${i+1}.png`)
-const cardImages = Array.from({length:7},(_,i)=>`images/card${i+1}.png`)
+/* ====== 画像 ====== */
+const slotImages=[1,2,3,4,5,6,7,8,9].map(n=>`images/slot${n}.png`);
+const cardImages=[1,2,3,4,5,6,7].map(n=>`images/card${n}.png`);
 
-let coin=100, mana=0, clickLv=0, autoClick=0
-let spinning=[false,false,false]
-let reel=[[],[],[]]
-let hand=[]
+/* ====== ステータス ====== */
+let coin=100;
+let mana=0;
+let clickLv=0;
+let autoClick=0;
 
-const coinEl=document.getElementById('coin')
-const manaEl=document.getElementById('mana')
-const clickLvEl=document.getElementById('clickLv')
-const autoClickEl=document.getElementById('autoClick')
+/* カード・効果用フラグ */
+let rewardMultiplier=1;
+let insurance=false;
+let freeReroll=false;
+let luckBonus=0;
 
-function update(){coinEl.textContent=coin;manaEl.textContent=mana;clickLvEl.textContent=clickLv;autoClickEl.textContent=autoClick}
+/* ====== UI更新 ====== */
+function updateUI(){
+  coinEl.textContent=coin;
+  manaEl.textContent=mana;
+  clickLvEl.textContent=clickLv;
+  autoClickEl.textContent=autoClick;
+}
+const coinEl=document.getElementById("coin");
+const manaEl=document.getElementById("mana");
+const clickLvEl=document.getElementById("clickLv");
+const autoClickEl=document.getElementById("autoClick");
 
-const slotGrid=document.getElementById('slotGrid')
-function initSlot(){slotGrid.innerHTML='';for(let i=0;i<3;i++){reel[i]=[];for(let j=0;j<3;j++){const d=document.createElement('div');d.className='slot-cell';d.style.backgroundImage=`url(${slotImages[Math.floor(Math.random()*9)]})`;slotGrid.appendChild(d);reel[i].push(d)}}}
-initSlot()
+/* ====== Click ====== */
+clickImg.onclick=()=>{
+  coin += Math.max(1,clickLv);
+  updateUI();
+};
+setInterval(()=>{
+  coin += autoClick;
+  updateUI();
+},1000);
 
-function roll(i){spinning[i]=true;(function loop(){if(!spinning[i])return;reel[i].forEach(c=>c.style.backgroundImage=`url(${slotImages[Math.floor(Math.random()*9)]})`);requestAnimationFrame(loop)})()}
-function stop(i){spinning[i]=false;if(spinning.every(v=>!v))endTurn()}
+/* ====== 手札 ====== */
+let hand=[];
+function drawCard(){
+  if(hand.length>=7) return;
+  hand.push(Math.floor(Math.random()*7));
+  renderHand();
+}
+function renderHand(){
+  cardList.innerHTML="";
+  hand.forEach((id,i)=>{
+    const img=document.createElement("img");
+    img.src=cardImages[id];
+    img.className="card-img";
+    img.onclick=()=>useCard(id,i);
+    cardList.appendChild(img);
+  });
+}
 
-function endTurn(){mana++;drawCard();checkReward();update()}
-function checkReward(){const m=reel.map(r=>r[1].style.backgroundImage);if(m[0]&&m[0]===m[1]&&m[1]===m[2])coin+=40}
+/* ====== カード効果 ====== */
+function useCard(id,index){
+  const cost=[2,2,3,2,3,1,1][id];
+  if(mana<cost) return;
+  mana-=cost;
 
-const cardList=document.getElementById('cardList')
-function drawCard(){if(hand.length>=7)return;const i=Math.floor(Math.random()*7);hand.push(i);renderCards()}
-function renderCards(){cardList.innerHTML='';hand.forEach((i,idx)=>{const d=document.createElement('div');d.className='card';d.style.backgroundImage=`url(${cardImages[i]})`;d.onclick=()=>{useCard(i);hand.splice(idx,1);renderCards()};cardList.appendChild(d)})}
+  switch(id){
+    case 0: freeReroll=true; break;
+    case 1: rewardMultiplier=2; break;
+    case 2: drawCard(); break;
+    case 3: insurance=true; break;
+    case 4: luckBonus+=75; break;
+    case 5: mana+=3; break;
+    case 6: coin+=10; break;
+  }
+  hand.splice(index,1);
+  renderHand();
+  updateUI();
+}
 
-function useCard(i){if(i===0)coin+=10;if(i===1)mana+=2;if(i===2)coin+=20;if(i===3)mana=Math.max(0,mana-2);if(i===4){coin+=5;mana+=1}if(i===5)coin=Math.max(0,coin-10);if(i===6)coin+=15;update()}
+/* ====== ターン ====== */
+setInterval(()=>{
+  mana+=1;
+  drawCard();
+  updateUI();
+},3000);
 
-spinBtn.onclick=()=>{if(coin<20)return;coin-=20;[0,1,2].forEach(roll);update()}
-stop1.onclick=()=>stop(0)
-stop2.onclick=()=>stop(1)
-stop3.onclick=()=>stop(2)
+/* ====== スロット ====== */
+const slotGrid=document.getElementById("slotGrid");
+let reels=[[],[],[]];
+let spinning=[false,false,false];
 
-clickImg.onclick=()=>{coin+=clickLv;update()}
-upClick.onclick=()=>{if(mana<3)return;mana-=3;clickLv+=Math.floor(clickLv/2)+1;update()}
-upAuto.onclick=()=>{if(mana<3)return;mana-=3;autoClick+=Math.floor(autoClick/2)+1;update()}
+function initSlot(){
+  slotGrid.innerHTML="";
+  for(let i=0;i<3;i++){
+    for(let j=0;j<3;j++){
+      const d=document.createElement("div");
+      d.className="slot-cell";
+      slotGrid.appendChild(d);
+      reels[i][j]=d;
+    }
+  }
+}
+initSlot();
 
-setInterval(()=>{coin+=autoClick;update()},1000)
-update()
+function roll(i){
+  spinning[i]=true;
+  const loop=()=>{
+    if(!spinning[i]) return;
+    reels[i].forEach(c=>{
+      c.dataset.id=Math.floor(Math.random()*9);
+      c.style.backgroundImage=`url(${slotImages[c.dataset.id]})`;
+    });
+    requestAnimationFrame(loop);
+  };
+  loop();
+}
+
+function stop(i){
+  spinning[i]=false;
+  if(spinning.some(v=>v)) return;
+  checkResult();
+}
+
+function checkResult(){
+  const m=reels.map(r=>r[1].dataset.id);
+  const diag1=reels[0][0].dataset.id===reels[1][1].dataset.id && reels[1][1].dataset.id===reels[2][2].dataset.id;
+  const diag2=reels[0][2].dataset.id===reels[1][1].dataset.id && reels[1][1].dataset.id===reels[2][0].dataset.id;
+
+  let win=(m[0]===m[1]&&m[1]===m[2])||diag1||diag2;
+
+  if(win){
+    coin+=40*rewardMultiplier;
+  }else if(insurance){
+    coin+=20;
+  }
+
+  rewardMultiplier=1;
+  insurance=false;
+  freeReroll=false;
+  luckBonus=0;
+  updateUI();
+}
+
+/* ====== ボタン ====== */
+spinBtn.onclick=()=>{
+  if(!freeReroll && coin<20) return;
+  if(!freeReroll) coin-=20;
+  roll(0);roll(1);roll(2);
+  updateUI();
+};
+stop1.onclick=()=>stop(0);
+stop2.onclick=()=>stop(1);
+stop3.onclick=()=>stop(2);
 </script>
 </body>
 </html>
